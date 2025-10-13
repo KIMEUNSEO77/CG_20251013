@@ -19,6 +19,42 @@ GLuint shaderProgramID;
 GLuint vertexShader;
 GLuint fragmentShader;
 
+GLuint axisVAO = 0, axisVBO = 0;   // 축들
+
+// 좌표축 데이터 (위치, 색상)
+GLfloat axisVertices[] = 
+{
+	// x축
+	-0.7f, 0.0f, 0.0f,   1,0,0,
+	0.7f, 0.0f, 0.0f,   1,0,0,
+	// y축
+	0.0f, -0.7f, 0.0f,   0,1,0,
+	0.0f, 0.7f, 0.0f,   0,1,0,
+	// z축
+	0.0f, 0.0f, -0.7f,   0,0,1,
+	0.0f, 0.0f, 0.8f,   0,0,1,
+};
+
+void initAxis()
+{
+	glGenVertexArrays(1, &axisVAO);
+	glGenBuffers(1, &axisVBO);
+
+	glBindVertexArray(axisVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, axisVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
+
+	// 위치
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// 색상
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
 char* filetobuf(const char* file)
 {
 	FILE* fptr;
@@ -50,7 +86,7 @@ char* filetobuf(const char* file)
 void main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);  // 깊이 버퍼 추가
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("Test_glsl");
@@ -61,6 +97,11 @@ void main(int argc, char** argv)
 	make_vertexShaders();
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
+
+	initAxis();   // 축 초기화
+
+	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
+
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutMainLoop();
@@ -130,15 +171,23 @@ GLuint make_shaderProgram()
 
 GLvoid drawScene()
 {
-	GLfloat rColor, gColor, bColor;
-	rColor = gColor = 1.0;
-	bColor = 1.0;
-	glClearColor(rColor, gColor, bColor, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // 이제 깊이 버퍼도 초기화
 
 	glUseProgram(shaderProgramID);
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	// 모델 변환 적용 (30도씩 회전)
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(1, 0, 0));
+	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(0, 1, 0));
+
+	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+
+	glBindVertexArray(axisVAO);
+	glDrawArrays(GL_LINES, 0, 6);
+	glBindVertexArray(0);
+
 	glutSwapBuffers();
 }
 
