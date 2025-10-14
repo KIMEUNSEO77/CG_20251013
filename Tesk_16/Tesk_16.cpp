@@ -34,6 +34,8 @@ bool rotatingY = false;
 bool directionX = true; // 회전 방향 (true: 시계, false: 반시계)
 bool directionY = true;
 
+float moveX = 0, moveY = 0; // 이동 거리
+
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
 {
@@ -211,6 +213,15 @@ char* filetobuf(const char* file)
 	// Return the buffer 
 }
 
+void Reset()
+{
+	moveX = 0; moveY = 0;
+	angleX = 30; angleY = -30;
+	rotatingX = false; rotatingY = false;
+	directionX = true; directionY = true;
+	glutPostRedisplay();
+}
+
 void Timer(int value)
 {
 	if (rotatingX)
@@ -275,10 +286,36 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		rotatingY = true;
 		directionY = false;
 		break;
+	case 's':
+		Reset();
+		break;
 	case 'q':
 		exit(0);
 		break;
 	}
+}
+
+// 화살표 입력
+void SpecialKeys(int key, int x, int y)
+{
+	float step = 0.05f; // 이동 거리
+
+	switch (key)
+	{
+	case GLUT_KEY_LEFT:
+		moveX -= step;
+		break;
+	case GLUT_KEY_RIGHT:
+		moveX += step;
+		break;
+	case GLUT_KEY_UP:
+		moveY += step;
+		break;
+	case GLUT_KEY_DOWN:
+		moveY -= step;
+		break;
+	}
+	glutPostRedisplay();
 }
 
 void main(int argc, char** argv)
@@ -306,6 +343,7 @@ void main(int argc, char** argv)
 
 	glutTimerFunc(0, Timer, 0); // 타이머 콜백 등록
 
+	glutSpecialFunc(SpecialKeys);
 	glutKeyboardFunc(Keyboard);
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
@@ -383,6 +421,7 @@ GLvoid drawScene()
 
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));  // 이동
 	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
 
