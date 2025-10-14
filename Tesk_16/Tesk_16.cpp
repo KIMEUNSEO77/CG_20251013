@@ -26,6 +26,7 @@ GLuint pyramidVAO[6] = { 0, }, pyramidVBO[6] = { 0 };   // 삼각뿔
 
 bool cubeMode = false;         // 정육면체 모드
 bool pyramidMode = false;      // 삼각뿔 모드
+bool cullMode = false;         // 면 제거 모드
 
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
@@ -44,30 +45,42 @@ GLfloat axisVertices[] =
 // 정육면체 vertex 좌표값
 float cube[8][3] =
 {
-	{0, 0, 0}, {-0.5f, 0, 0}, {-0.5f, 0, 0.5f}, {0, 0, 0.5f},
-	{0, 0.5f, 0}, {-0.5f, 0.5f, 0}, {-0.5f, 0.5f, 0.5f}, {0, 0.5f, 0.5f}
+	{0, 0, 0}, {0.5f, 0, 0}, {0.5f, 0, 0.5f}, {0, 0, 0.5f},
+	{0, 0.5f, 0}, {0.5f, 0.5f, 0}, {0.5f, 0.5f, 0.5f}, {0, 0.5f, 0.5f}
 };
 int faces[6][4] = {
-	{1, 0, 4, 5}, {0, 1, 2, 3},
-	{1, 2, 6, 5}, {4, 0, 3, 7},
-	{4, 5, 6, 7}, {2, 3, 7, 6}
+	{1, 0, 5, 4}, {0, 3, 2, 1},
+	{1, 5, 6, 2}, {0, 4, 7, 3},
+	{4, 7, 6, 5}, {2, 6, 7, 3}
 };
-float faceColors[6][3] = {
-	{1,0,0}, {0,1,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // 색상
+// 정육면체 꼭짓점별 색상 (8개)
+float cubeColors[8][3] = {
+	{1,0,0},    // 0
+	{0,1,0},    // 1
+	{0,0,1},    // 2
+	{1,1,0},    // 3
+	{1,0,1},    // 4
+	{0,1,1},    // 5
+	{0.5f,0.5f,0.5f}, // 6
+	{1,0.5f,0}  // 7
 };
 
 // 삼각뿔 vertex 좌표값
 float pyramid[5][3] =
 {
-	{0, 0, 0}, {-0.5f, 0, 0}, {-0.5f, 0, 0.5f}, {0, 0, 0.5f},
-	{-0.25f, 0.5f, 0.25f}
+	{0, 0.5f, 0}, {-0.25f, 0, -0.25f}, {-0.25f, 0, 0.25f}, {0.25f, 0, 0.25f},
+	{0.25f, 0, -0.25f}
 };
 int pyramidFaces[6][3] = {
-	{0, 1, 3}, {1, 2, 3}, {1, 0, 4}, {0, 3, 4},   // 0, 1은 한 면
-	{1, 2, 4}, {2, 3, 4}
+	{1, 2, 4}, {2, 3, 4} , {0, 1, 2}, {0, 2, 3}, {0, 3, 4}, {0, 4, 1}  // 0, 1은 한 면	
 };
-float pyramidColors[6][3] = {
-	{1,0,0}, {1,0,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // 색상
+// 삼각뿔 꼭짓점별 색상 (5개)
+float pyramidColors[5][3] = {
+	{1,0,0},    // 0
+	{0,1,0},    // 1
+	{0,0,1},    // 2
+	{1,1,0},    // 3
+	{1,0,1}     // 4
 };
 
 void InitCube()
@@ -79,23 +92,22 @@ void InitCube()
 		int v1 = faces[i][1];
 		int v2 = faces[i][2];
 		int v3 = faces[i][3];
-		float* color = faceColors[i];
 
 		// 삼각형 1: v0, v1, v2
 		vertices.push_back(cube[v0][0]); vertices.push_back(cube[v0][1]); vertices.push_back(cube[v0][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v0][0]); vertices.push_back(cubeColors[v0][1]); vertices.push_back(cubeColors[v0][2]);
 		vertices.push_back(cube[v1][0]); vertices.push_back(cube[v1][1]); vertices.push_back(cube[v1][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v1][0]); vertices.push_back(cubeColors[v1][1]); vertices.push_back(cubeColors[v1][2]);
 		vertices.push_back(cube[v2][0]); vertices.push_back(cube[v2][1]); vertices.push_back(cube[v2][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v2][0]); vertices.push_back(cubeColors[v2][1]); vertices.push_back(cubeColors[v2][2]);
 
 		// 삼각형 2: v0, v2, v3
 		vertices.push_back(cube[v0][0]); vertices.push_back(cube[v0][1]); vertices.push_back(cube[v0][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v0][0]); vertices.push_back(cubeColors[v0][1]); vertices.push_back(cubeColors[v0][2]);
 		vertices.push_back(cube[v2][0]); vertices.push_back(cube[v2][1]); vertices.push_back(cube[v2][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v2][0]); vertices.push_back(cubeColors[v2][1]); vertices.push_back(cubeColors[v2][2]);
 		vertices.push_back(cube[v3][0]); vertices.push_back(cube[v3][1]); vertices.push_back(cube[v3][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v3][0]); vertices.push_back(cubeColors[v3][1]); vertices.push_back(cubeColors[v3][2]);
 
 		glGenVertexArrays(1, &cubeVAO[i]);
 		glGenBuffers(1, &cubeVBO[i]);
@@ -120,14 +132,15 @@ void InitPyramid()
 		int v0 = pyramidFaces[i][0];
 		int v1 = pyramidFaces[i][1];
 		int v2 = pyramidFaces[i][2];
-		float* color = pyramidColors[i];
+
 		// 삼각형 1: v0, v1, v2
 		vertices.push_back(pyramid[v0][0]); vertices.push_back(pyramid[v0][1]); vertices.push_back(pyramid[v0][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(pyramidColors[v0][0]); vertices.push_back(pyramidColors[v0][1]); vertices.push_back(pyramidColors[v0][2]);
 		vertices.push_back(pyramid[v1][0]); vertices.push_back(pyramid[v1][1]); vertices.push_back(pyramid[v1][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(pyramidColors[v1][0]); vertices.push_back(pyramidColors[v1][1]); vertices.push_back(pyramidColors[v1][2]);
 		vertices.push_back(pyramid[v2][0]); vertices.push_back(pyramid[v2][1]); vertices.push_back(pyramid[v2][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(pyramidColors[v2][0]); vertices.push_back(pyramidColors[v2][1]); vertices.push_back(pyramidColors[v2][2]);
+
 		glGenVertexArrays(1, &pyramidVAO[i]);
 		glGenBuffers(1, &pyramidVBO[i]);
 		glBindVertexArray(pyramidVAO[i]);
@@ -206,6 +219,20 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		cubeMode = false;
 		glutPostRedisplay();
 		break;
+	case 'h':
+		cullMode = !cullMode;
+		if (cullMode) glEnable(GL_CULL_FACE);
+		else glDisable(GL_CULL_FACE);
+		glutPostRedisplay();
+		break;
+	case 'w':
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glutPostRedisplay();
+		break;
+	case 'W':
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glutPostRedisplay();
+		break;
 	case 'q':
 		exit(0);
 		break;
@@ -232,8 +259,8 @@ void main(int argc, char** argv)
 	InitPyramid();   // 삼각뿔 초기화
 
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
-	glEnable(GL_CULL_FACE); // 면 제거
-	glDepthFunc(GL_ALWAYS);   // 항상 통과
+	//glEnable(GL_CULL_FACE); // 면 제거
+	//glDepthFunc(GL_ALWAYS);   // 항상 통과
 
 	glutKeyboardFunc(Keyboard);
 	glutDisplayFunc(drawScene);
@@ -313,7 +340,7 @@ GLvoid drawScene()
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(1, 0, 0));
-	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(0, 1, 0));
+	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(0, 1, 0));
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
