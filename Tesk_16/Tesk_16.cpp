@@ -28,6 +28,10 @@ bool cubeMode = false;         // 정육면체 모드
 bool pyramidMode = false;      // 삼각뿔 모드
 bool cullMode = false;         // 면 제거 모드
 
+float angleX = 30, angleY = -30; // 회전 각도
+bool rotating = false;
+bool direction = true; // 회전 방향 (true: 시계, false: 반시계)
+
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
 {
@@ -53,7 +57,7 @@ int faces[6][4] = {
 	{1, 5, 6, 2}, {0, 4, 7, 3},
 	{4, 7, 6, 5}, {2, 6, 7, 3}
 };
-// 정육면체 꼭짓점별 색상 (8개)
+// 정육면체 꼭짓점별 색상
 float cubeColors[8][3] = {
 	{1,0,0},    // 0
 	{0,1,0},    // 1
@@ -74,7 +78,7 @@ float pyramid[5][3] =
 int pyramidFaces[6][3] = {
 	{1, 2, 4}, {2, 3, 4} , {0, 1, 2}, {0, 2, 3}, {0, 3, 4}, {0, 4, 1}  // 0, 1은 한 면	
 };
-// 삼각뿔 꼭짓점별 색상 (5개)
+// 삼각뿔 꼭짓점별 색상
 float pyramidColors[5][3] = {
 	{1,0,0},    // 0
 	{0,1,0},    // 1
@@ -205,6 +209,17 @@ char* filetobuf(const char* file)
 	// Return the buffer 
 }
 
+void Timer(int value)
+{
+	if (rotating)
+	{
+
+		angleX += 1.0f;  // 회전 속도
+		glutPostRedisplay();
+	}
+	glutTimerFunc(16, Timer, 0);
+}
+
 GLvoid Keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -232,6 +247,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'W':
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glutPostRedisplay();
+		break;
+	case 'x':
+		rotating = true;
 		break;
 	case 'q':
 		exit(0);
@@ -261,6 +279,8 @@ void main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
 	//glEnable(GL_CULL_FACE); // 면 제거
 	//glDepthFunc(GL_ALWAYS);   // 항상 통과
+
+	glutTimerFunc(0, Timer, 0); // 타이머 콜백 등록
 
 	glutKeyboardFunc(Keyboard);
 	glutDisplayFunc(drawScene);
@@ -339,7 +359,7 @@ GLvoid drawScene()
 
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(1, 0, 0));
+	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(0, 1, 0));
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
