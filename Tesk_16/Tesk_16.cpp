@@ -411,6 +411,12 @@ GLvoid drawScene()
 		}
 	}
 
+	// 2. 좌표축 그릴 때: 단위행렬(변환 없음) 적용
+	glm::mat4 axisModel = glm::mat4(1.0f);
+	axisModel = glm::rotate(axisModel, glm::radians(30.0f), glm::vec3(1, 0, 0));
+	axisModel = glm::rotate(axisModel, glm::radians(-30.0f), glm::vec3(0, 1, 0));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &axisModel[0][0]);
 	glBindVertexArray(axisVAO);
 	glDrawArrays(GL_LINES, 0, 6);
 	glBindVertexArray(0);
