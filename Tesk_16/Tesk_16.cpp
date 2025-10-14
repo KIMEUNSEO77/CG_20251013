@@ -29,8 +29,10 @@ bool pyramidMode = false;      // 삼각뿔 모드
 bool cullMode = false;         // 면 제거 모드
 
 float angleX = 30, angleY = -30; // 회전 각도
-bool rotating = false;
-bool direction = true; // 회전 방향 (true: 시계, false: 반시계)
+bool rotatingX = false;
+bool rotatingY = false;
+bool directionX = true; // 회전 방향 (true: 시계, false: 반시계)
+bool directionY = true;
 
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
@@ -211,10 +213,17 @@ char* filetobuf(const char* file)
 
 void Timer(int value)
 {
-	if (rotating)
+	if (rotatingX)
 	{
-
-		angleX += 1.0f;  // 회전 속도
+		if (directionX) angleX += 1.0f;  // 회전 속도
+		else angleX -= 1.0f;
+		
+		glutPostRedisplay();
+	}
+	else if (rotatingY)
+	{
+		if (directionY) angleY += 1.0f;  // 회전 속도
+		else angleY -= 1.0f;
 		glutPostRedisplay();
 	}
 	glutTimerFunc(16, Timer, 0);
@@ -249,7 +258,22 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'x':
-		rotating = true;
+		rotatingX = true;
+		directionX = true;
+		break;
+	case 'X':
+		rotatingX = true;
+		directionX = false;
+		break;
+	case 'y':
+		rotatingX = false;
+		rotatingY = true;
+		directionY = true;
+		break;
+	case 'Y':
+		rotatingX = false;
+		rotatingY = true;
+		directionY = false;
 		break;
 	case 'q':
 		exit(0);
@@ -360,7 +384,7 @@ GLvoid drawScene()
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
-	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(0, 1, 0));
+	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
