@@ -244,6 +244,11 @@ void Timer(int value)
 		topAngle += 2.0f;
 		glutPostRedisplay();
 	}
+	if (sideAnimation)
+	{
+		sideAngle += 2.0f;
+		glutPostRedisplay();
+	}
 	glutTimerFunc(16, Timer, 0);
 }
 
@@ -300,6 +305,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 't':
 		topAnimation = !topAnimation;
+		break;
+	case 's':
+		sideAnimation = !sideAnimation;
 		break;
 	case 'q':
 		exit(0);
@@ -459,17 +467,27 @@ GLvoid drawScene()
 			}
 			if (i == 3)
 			{
-				glm::vec3 pivot = { (cube[3][0] + cube[4][0]) * 0.5f, cube[3][1], (cube[3][2] + cube[4][2]) * 0.5f }; // v4, v7 중점
+				// 회전축 설정
+				glm::vec3 p0 = { cube[3][0], cube[3][1], cube[3][2] };   // v4
+				glm::vec3 p1 = { cube[4][0], cube[4][1], cube[4][2] };   // v7
+				glm::vec3 axis = glm::normalize(p0 - p1);               // 모서리 방향 (여긴 (0,0,1))
+				glm::vec3 pivot = (p0 + p1) * 0.5f;                                     // v4 기준 (중점 쓰려면 (p0+p1)*0.5f)
+
 				M = glm::translate(M, pivot);
-				M = glm::rotate(M, glm::radians(topAngle), glm::vec3(1, 0, 0));
+				M = glm::rotate(M, glm::radians(sideAngle), glm::vec3(1, 0, 0));
 				M = glm::translate(M, -pivot);
 			}
 
-			if (i == 4)
+			if (i == 2)
 			{
-				glm::vec3 pivot = { (cube[2][0] + cube[5][0]) * 0.5f, cube[2][1], (cube[2][2] + cube[5][2]) * 0.5f }; // v4, v7 중점
+				// 회전축 설정
+				glm::vec3 p0 = { cube[2][0], cube[2][1], cube[2][2] };   // v4
+				glm::vec3 p1 = { cube[5][0], cube[5][1], cube[5][2] };   // v7
+				glm::vec3 axis = glm::normalize(p0 - p1);               // 모서리 방향 (여긴 (0,0,1))
+				glm::vec3 pivot = (p0 + p1) * 0.5f;                                     // v4 기준 (중점 쓰려면 (p0+p1)*0.5f)
+
 				M = glm::translate(M, pivot);
-				M = glm::rotate(M, glm::radians(topAngle), glm::vec3(1, 0, 0));
+				M = glm::rotate(M, glm::radians(sideAngle), glm::vec3(1, 0, 0));
 				M = glm::translate(M, -pivot);
 			}
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
