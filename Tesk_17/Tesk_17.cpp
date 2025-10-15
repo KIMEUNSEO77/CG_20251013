@@ -39,6 +39,10 @@ float frontAngle = 0.0f; // 육면체 앞면 회전 각도
 int dir = +1;           // +1: 증가, -1: 감소
 float speed = 1.0f; // 회전 속도
 
+// 윗면 z축 기준 회전
+bool topAnimation = false;    // 육면체 z축 회전
+float topAngle = 0.0f; // 육면체 윗면 회전 각도
+
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
 {
@@ -56,8 +60,8 @@ GLfloat axisVertices[] =
 // 정육면체 vertex 좌표값
 float cube[8][3] =
 {
-	{0.5f, 0, -0.5f}, {0, 0, -0.5f}, {0, 0, 0}, {0.5f, 0, 0},
-	{0.5f, 0.5f, -0.5f}, {0, 0.5f, -0.5f}, {0, 0.5f, 0}, {0.5f, 0.5f, 0}
+	{0.25f, 0, -0.25f}, {0, 0, -0.25f}, {0, 0, 0}, {0.25f, 0, 0},
+	{0.25f, 0.25f, -0.25f}, {0, 0.25f, -0.25f}, {0, 0.25f, 0}, {0.25f, 0.25f, 0}
 };
 int faces[6][4] = {
 	{0, 1, 2, 3},   // 아래
@@ -219,15 +223,21 @@ void Timer(int value)
 	{
 		frontAngle += dir * speed;
 
-		if (frontAngle >= 90.0f) {
+		if (frontAngle >= 90.0f) 
+		{
 			frontAngle = 90.0f;   // ★ 경계에서 고정
 			dir = -1;             // ★ 방향 반전
 		}
-		else if (frontAngle <= 0.0f) {
+		else if (frontAngle <= 0.0f) 
+		{
 			frontAngle = 0.0f;    // ★ 경계에서 고정
 			dir = +1;             // ★ 방향 반전
 		}
-
+		glutPostRedisplay();
+	}
+	if (topAnimation)
+	{
+		topAngle += 2.0f;
 		glutPostRedisplay();
 	}
 	glutTimerFunc(16, Timer, 0);
@@ -282,7 +292,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'f':
 		frontAnimation = !frontAnimation;
-		rotatingY = false;
+		//rotatingY = false;
+		break;
+	case 't':
+		topAnimation = !topAnimation;
 		break;
 	case 'q':
 		exit(0);
@@ -411,6 +424,7 @@ GLvoid drawScene()
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
 	int front = 4;
+	int top = 1;
 	if (cubeMode)
 	{
 		// 각 면별로 그리기
@@ -420,16 +434,21 @@ GLvoid drawScene()
 
 			if (i == front) 
 			{
-				// === 경첩(모서리 4-7) 축 설정 ===
+				// 회전축 설정
 				glm::vec3 p0 = { cube[4][0], cube[4][1], cube[4][2] };   // v4
-				glm::vec3 p1 = { cube[7][0], cube[7][1], cube[7][2] };   // v7
-				glm::vec3 axis = glm::normalize(p1 - p0);               // 모서리 방향 (여긴 (0,0,1))
+				glm::vec3 p1 = { cube[5][0], cube[5][1], cube[5][2] };   // v7
+				glm::vec3 axis = glm::normalize(p0-p1);               // 모서리 방향 (여긴 (0,0,1))
 				glm::vec3 pivot = p0;                                     // v4 기준 (중점 쓰려면 (p0+p1)*0.5f)
 
 				// 모델 공간 피벗 기준 회전: base * T(pivot) * R(axis, θ) * T(−pivot)
 				M = glm::translate(M, pivot);
 				M = glm::rotate(M, glm::radians(frontAngle), axis);
 				M = glm::translate(M, -pivot);
+			}
+
+			if (i == top)
+			{
+
 			}
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
 
