@@ -240,6 +240,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'h':
 		cullMode = !cullMode;
+		glCullFace(GL_BACK);              // 뒷면 제거
+		glFrontFace(GL_CW);               // 네 버텍스 데이터가 CW이더라도 확실히 지정
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // 혹시나 라인 모드가 켜져 있으면 면이 안 사라진 것처럼 보임
 		if (cullMode) glEnable(GL_CULL_FACE);
 		else glDisable(GL_CULL_FACE);
 		glutPostRedisplay();
@@ -374,13 +377,25 @@ GLvoid drawScene()
 
 	glUseProgram(shaderProgramID);
 
+	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
+
+	// 2. 좌표축 그릴 때: 단위행렬(변환 없음) 적용
+	glm::mat4 axisModel = glm::mat4(1.0f);
+	axisModel = glm::rotate(axisModel, glm::radians(-30.0f), glm::vec3(1, 0, 0));
+	axisModel = glm::rotate(axisModel, glm::radians(30.0f), glm::vec3(0, 1, 0));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &axisModel[0][0]);
+	glBindVertexArray(axisVAO);
+	glDrawArrays(GL_LINES, 0, 6);
+	glBindVertexArray(0);
+
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
 	//model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));  // 이동
+	//model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+
 	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
-
-	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
 	if (cubeMode)
@@ -404,16 +419,6 @@ GLvoid drawScene()
 			glBindVertexArray(0);
 		}
 	}
-
-	// 2. 좌표축 그릴 때: 단위행렬(변환 없음) 적용
-	glm::mat4 axisModel = glm::mat4(1.0f);
-	axisModel = glm::rotate(axisModel, glm::radians(-30.0f), glm::vec3(1, 0, 0));
-	axisModel = glm::rotate(axisModel, glm::radians(30.0f), glm::vec3(0, 1, 0));
-
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &axisModel[0][0]);
-	glBindVertexArray(axisVAO);
-	glDrawArrays(GL_LINES, 0, 6);
-	glBindVertexArray(0);
 
 	glutSwapBuffers();
 }
