@@ -37,6 +37,8 @@ bool directionY = true;
 float moveX = 0, moveY = 0; // 이동 거리
 bool backfaceCulling = true;
 
+glm::vec3 center = { 0.25f, 0.25f, -0.25f };
+
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
 {
@@ -441,6 +443,7 @@ GLvoid drawScene()
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));  // 이동
+
 	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
 

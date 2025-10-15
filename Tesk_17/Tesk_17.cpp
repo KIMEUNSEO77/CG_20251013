@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS 
+ï»¿#define _CRT_SECURE_NO_WARNINGS 
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
@@ -20,69 +20,73 @@ GLuint shaderProgramID;
 GLuint vertexShader;
 GLuint fragmentShader;
 
-GLuint axisVAO = 0, axisVBO = 0;   // Ãàµé
-GLuint cubeVAO[6] = { 0, }, cubeVBO[6] = { 0 };   // Á¤À°¸éÃ¼
-GLuint pyramidVAO[6] = { 0, }, pyramidVBO[6] = { 0 };   // »ï°¢»Ô
+GLuint axisVAO = 0, axisVBO = 0;   // ì¶•ë“¤
+GLuint cubeVAO[6] = { 0, }, cubeVBO[6] = { 0 };   // ì •ìœ¡ë©´ì²´
+GLuint pyramidVAO[6] = { 0, }, pyramidVBO[6] = { 0 };   // ì‚¼ê°ë¿”
 
-bool cubeMode = true;         // Á¤À°¸éÃ¼ ¸ğµå, fasle»ç°¢»Ô
-bool cullMode = false;         // ¸é Á¦°Å ¸ğµå
+bool cubeMode = true;         // ì •ìœ¡ë©´ì²´ ëª¨ë“œ, fasleì‚¬ê°ë¿”
+bool cullMode = false;         // ë©´ ì œê±° ëª¨ë“œ
 
-float angleX = -30, angleY = 30; // È¸Àü °¢µµ
+float angleX = -30, angleY = 30; // íšŒì „ ê°ë„
 bool rotatingX = false;
 bool rotatingY = false;
-bool directionX = true; // È¸Àü ¹æÇâ (true: ½Ã°è, false: ¹İ½Ã°è)
+bool directionX = true; // íšŒì „ ë°©í–¥ (true: ì‹œê³„, false: ë°˜ì‹œê³„)
 bool directionY = true;
 
 bool backfaceCulling = true;
+bool frontAnimation = false;   // ìœ¡ë©´ì²´ ì•ë©´ ì—´ë ¸ë‹¤ê°€ ë‹«í˜”ë‹¤ê°€
+float frontAngle = 0.0f; // ìœ¡ë©´ì²´ ì•ë©´ íšŒì „ ê°ë„
+int dir = +1;           // +1: ì¦ê°€, -1: ê°ì†Œ
+float speed = 1.0f; // íšŒì „ ì†ë„
 
-// Ãà µ¥ÀÌÅÍ (À§Ä¡, »ö»ó)
+// ì¶• ë°ì´í„° (ìœ„ì¹˜, ìƒ‰ìƒ)
 GLfloat axisVertices[] =
 {
-	// xÃà
+	// xì¶•
 	-0.7f, 0.0f, 0.0f,   1,0,0,
 	0.7f, 0.0f, 0.0f,   1,0,0,
-	// yÃà
+	// yì¶•
 	0.0f, -0.7f, 0.0f,   0,1,0,
 	0.0f, 0.7f, 0.0f,   0,1,0,
-	// zÃà
+	// zì¶•
 	0.0f, 0.0f, -0.7f,   0,0,1,
 	0.0f, 0.0f, 0.8f,   0,0,1,
 };
 
-// Á¤À°¸éÃ¼ vertex ÁÂÇ¥°ª
+// ì •ìœ¡ë©´ì²´ vertex ì¢Œí‘œê°’
 float cube[8][3] =
 {
 	{0.5f, 0, -0.5f}, {0, 0, -0.5f}, {0, 0, 0}, {0.5f, 0, 0},
 	{0.5f, 0.5f, -0.5f}, {0, 0.5f, -0.5f}, {0, 0.5f, 0}, {0.5f, 0.5f, 0}
 };
 int faces[6][4] = {
-	{0, 1, 2, 3},
-	{4, 7, 6, 5}, 
-	{1, 5, 6, 2}, 
-	{0, 3, 7, 4}, 
-	{0, 4, 5, 1}, 
-	{3, 2, 6, 7}  
+	{0, 1, 2, 3},   // ì•„ë˜
+	{4, 7, 6, 5},   // ìœ—
+	{1, 5, 6, 2},   // ì•ˆìª½ì˜†ë©´
+	{0, 3, 7, 4},   // ë°–ì˜†ë©´
+	{0, 4, 5, 1},   // ì•
+	{3, 2, 6, 7}    // ë’¤
 };
 float faceColors[6][3] = {
-	{1,0,0}, {0,1,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // »ö»ó
+	{1,0,0}, {0,1,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // ìƒ‰ìƒ
 };
 
-// »ï°¢»Ô vertex ÁÂÇ¥°ª
+// ì‚¼ê°ë¿” vertex ì¢Œí‘œê°’
 float pyramid[5][3] =
 {
 	{0, 0.5f, 0}, {0.25f, 0, -0.25f}, {-0.25f, 0, -0.25f}, {-0.25f, 0, 0.25f},
 	{0.25f, 0, 0.25f}
 };
 int pyramidFaces[6][3] = {
-	{1, 2, 3}, {1, 3, 4}, {0, 3, 2}, {0, 2, 1}, {0, 4, 3}, {0, 1, 4}  // 0, 1Àº ÇÑ ¸é
+	{1, 2, 3}, {1, 3, 4}, {0, 3, 2}, {0, 2, 1}, {0, 4, 3}, {0, 1, 4}  // 0, 1ì€ í•œ ë©´
 };
 float pyramidColors[6][3] = {
-	{1,0,0}, {1,0,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // »ö»ó
+	{1,0,0}, {1,0,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // ìƒ‰ìƒ
 };
 
 void InitCube()
 {
-	for (int i = 0; i < 6; i++)   // 6¸é °¢°¢
+	for (int i = 0; i < 6; i++)   // 6ë©´ ê°ê°
 	{
 		std::vector<GLfloat> vertices;
 		int v0 = faces[i][0];
@@ -91,7 +95,7 @@ void InitCube()
 		int v3 = faces[i][3];
 		float* color = faceColors[i];
 
-		// »ï°¢Çü 1: v0, v1, v2
+		// ì‚¼ê°í˜• 1: v0, v1, v2
 		vertices.push_back(cube[v0][0]); vertices.push_back(cube[v0][1]); vertices.push_back(cube[v0][2]);
 		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
 		vertices.push_back(cube[v1][0]); vertices.push_back(cube[v1][1]); vertices.push_back(cube[v1][2]);
@@ -99,7 +103,7 @@ void InitCube()
 		vertices.push_back(cube[v2][0]); vertices.push_back(cube[v2][1]); vertices.push_back(cube[v2][2]);
 		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
 
-		// »ï°¢Çü 2: v0, v2, v3
+		// ì‚¼ê°í˜• 2: v0, v2, v3
 		vertices.push_back(cube[v0][0]); vertices.push_back(cube[v0][1]); vertices.push_back(cube[v0][2]);
 		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
 		vertices.push_back(cube[v2][0]); vertices.push_back(cube[v2][1]); vertices.push_back(cube[v2][2]);
@@ -112,10 +116,10 @@ void InitCube()
 		glBindVertexArray(cubeVAO[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO[i]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-		// À§Ä¡
+		// ìœ„ì¹˜
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
-		// »ö»ó
+		// ìƒ‰ìƒ
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -125,14 +129,14 @@ void InitCube()
 
 	void InitPyramid()
 	{
-		for (int i = 0; i < 6; i++)   // 6¸é °¢°¢
+		for (int i = 0; i < 6; i++)   // 6ë©´ ê°ê°
 		{
 			std::vector<GLfloat> vertices;
 			int v0 = pyramidFaces[i][0];
 			int v1 = pyramidFaces[i][1];
 			int v2 = pyramidFaces[i][2];
 			float* color = pyramidColors[i];
-			// »ï°¢Çü 1: v0, v1, v2
+			// ì‚¼ê°í˜• 1: v0, v1, v2
 			vertices.push_back(pyramid[v0][0]); vertices.push_back(pyramid[v0][1]); vertices.push_back(pyramid[v0][2]);
 			vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
 			vertices.push_back(pyramid[v1][0]); vertices.push_back(pyramid[v1][1]); vertices.push_back(pyramid[v1][2]);
@@ -144,10 +148,10 @@ void InitCube()
 			glBindVertexArray(pyramidVAO[i]);
 			glBindBuffer(GL_ARRAY_BUFFER, pyramidVBO[i]);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-			// À§Ä¡
+			// ìœ„ì¹˜
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0);
-			// »ö»ó
+			// ìƒ‰ìƒ
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 			glEnableVertexAttribArray(1);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -164,10 +168,10 @@ void InitAxis()
 	glBindBuffer(GL_ARRAY_BUFFER, axisVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
 
-	// À§Ä¡
+	// ìœ„ì¹˜
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// »ö»ó
+	// ìƒ‰ìƒ
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
@@ -205,17 +209,25 @@ char* filetobuf(const char* file)
 
 void Timer(int value)
 {
-	if (rotatingX)
+	if (rotatingY)
 	{
-		if (directionX) angleX += 1.0f;  // È¸Àü ¼Óµµ
-		else angleX -= 1.0f;
-
+		if (directionY) angleY += 1.0f;  // íšŒì „ ì†ë„
+		else angleY -= 1.0f;
 		glutPostRedisplay();
 	}
-	else if (rotatingY)
+	if (frontAnimation)
 	{
-		if (directionY) angleY += 1.0f;  // È¸Àü ¼Óµµ
-		else angleY -= 1.0f;
+		frontAngle += dir * speed;
+
+		if (frontAngle >= 90.0f) {
+			frontAngle = 90.0f;   // â˜… ê²½ê³„ì—ì„œ ê³ ì •
+			dir = -1;             // â˜… ë°©í–¥ ë°˜ì „
+		}
+		else if (frontAngle <= 0.0f) {
+			frontAngle = 0.0f;    // â˜… ê²½ê³„ì—ì„œ ê³ ì •
+			dir = +1;             // â˜… ë°©í–¥ ë°˜ì „
+		}
+
 		glutPostRedisplay();
 	}
 	glutTimerFunc(16, Timer, 0);
@@ -240,14 +252,11 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'h':
 		cullMode = !cullMode;
-		glCullFace(GL_BACK);              // µŞ¸é Á¦°Å
-		glFrontFace(GL_CW);               // ³× ¹öÅØ½º µ¥ÀÌÅÍ°¡ CWÀÌ´õ¶óµµ È®½ÇÈ÷ ÁöÁ¤
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // È¤½Ã³ª ¶óÀÎ ¸ğµå°¡ ÄÑÁ® ÀÖÀ¸¸é ¸éÀÌ ¾È »ç¶óÁø °ÍÃ³·³ º¸ÀÓ
 		if (cullMode) glEnable(GL_CULL_FACE);
 		else glDisable(GL_CULL_FACE);
 		glutPostRedisplay();
 		break;
-		// µŞ¸éÁ¦°Å Àû¿ë, ÇØÁ¦
+		// ë’·ë©´ì œê±° ì ìš©, í•´ì œ
 		/*
 	case 'u':
 		backfaceCulling = !backfaceCulling;
@@ -271,6 +280,10 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'c':
 		Reset();
 		break;
+	case 'f':
+		frontAnimation = !frontAnimation;
+		rotatingY = false;
+		break;
 	case 'q':
 		exit(0);
 		break;
@@ -280,7 +293,7 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 void main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);  // ±íÀÌ ¹öÆÛ Ãß°¡
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);  // ê¹Šì´ ë²„í¼ ì¶”ê°€
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(width, height);
 	glutCreateWindow("Tesk_17");
@@ -292,15 +305,15 @@ void main(int argc, char** argv)
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
 
-	InitAxis();   // Ãà ÃÊ±âÈ­
-	InitCube();   // Á¤À°¸éÃ¼ ÃÊ±âÈ­
-	InitPyramid();   // »ï°¢»Ô ÃÊ±âÈ­
+	InitAxis();   // ì¶• ì´ˆê¸°í™”
+	InitCube();   // ì •ìœ¡ë©´ì²´ ì´ˆê¸°í™”
+	InitPyramid();   // ì‚¼ê°ë¿” ì´ˆê¸°í™”
 
-	glEnable(GL_DEPTH_TEST); // ±íÀÌ Å×½ºÆ® È°¼ºÈ­
-	//glEnable(GL_CULL_FACE); // ¸é Á¦°Å
-	//glDepthFunc(GL_ALWAYS);   // Ç×»ó Åë°ú
+	glEnable(GL_DEPTH_TEST); // ê¹Šì´ í…ŒìŠ¤íŠ¸ í™œì„±í™”
+	//glEnable(GL_CULL_FACE); // ë©´ ì œê±°
+	//glDepthFunc(GL_ALWAYS);   // í•­ìƒ í†µê³¼
 
-	glutTimerFunc(0, Timer, 0); // Å¸ÀÌ¸Ó Äİ¹é µî·Ï
+	glutTimerFunc(0, Timer, 0); // íƒ€ì´ë¨¸ ì½œë°± ë“±ë¡
 
 	glutKeyboardFunc(Keyboard);
 	glutDisplayFunc(drawScene);
@@ -373,13 +386,13 @@ GLuint make_shaderProgram()
 GLvoid drawScene()
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // ÀÌÁ¦ ±íÀÌ ¹öÆÛµµ ÃÊ±âÈ­
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // ì´ì œ ê¹Šì´ ë²„í¼ë„ ì´ˆê¸°í™”
 
 	glUseProgram(shaderProgramID);
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 
-	// 2. ÁÂÇ¥Ãà ±×¸± ¶§: ´ÜÀ§Çà·Ä(º¯È¯ ¾øÀ½) Àû¿ë
+	// 2. ì¢Œí‘œì¶• ê·¸ë¦´ ë•Œ: ë‹¨ìœ„í–‰ë ¬(ë³€í™˜ ì—†ìŒ) ì ìš©
 	glm::mat4 axisModel = glm::mat4(1.0f);
 	axisModel = glm::rotate(axisModel, glm::radians(-30.0f), glm::vec3(1, 0, 0));
 	axisModel = glm::rotate(axisModel, glm::radians(30.0f), glm::vec3(0, 1, 0));
@@ -389,20 +402,37 @@ GLvoid drawScene()
 	glDrawArrays(GL_LINES, 0, 6);
 	glBindVertexArray(0);
 
-	// ¸ğµ¨ º¯È¯ Àû¿ë (30µµ¾¿ È¸Àü)
+	// ëª¨ë¸ ë³€í™˜ ì ìš© (30ë„ì”© íšŒì „)
 	glm::mat4 model = glm::mat4(1.0f);
-	//model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));  // ÀÌµ¿
-	//model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.0f));
+	//model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));  // ì´ë™
 
-	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
+	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
+	int front = 4;
 	if (cubeMode)
 	{
-		// °¢ ¸éº°·Î ±×¸®±â
+		// ê° ë©´ë³„ë¡œ ê·¸ë¦¬ê¸°
 		for (int i = 0; i < 6; ++i)
 		{
+			glm::mat4 M = model;
+
+			if (i == front) 
+			{
+				// === ê²½ì²©(ëª¨ì„œë¦¬ 4-7) ì¶• ì„¤ì • ===
+				glm::vec3 p0 = { cube[4][0], cube[4][1], cube[4][2] };   // v4
+				glm::vec3 p1 = { cube[7][0], cube[7][1], cube[7][2] };   // v7
+				glm::vec3 axis = glm::normalize(p1 - p0);               // ëª¨ì„œë¦¬ ë°©í–¥ (ì—¬ê¸´ (0,0,1))
+				glm::vec3 pivot = p0;                                     // v4 ê¸°ì¤€ (ì¤‘ì  ì“°ë ¤ë©´ (p0+p1)*0.5f)
+
+				// ëª¨ë¸ ê³µê°„ í”¼ë²— ê¸°ì¤€ íšŒì „: base * T(pivot) * R(axis, Î¸) * T(âˆ’pivot)
+				M = glm::translate(M, pivot);
+				M = glm::rotate(M, glm::radians(frontAngle), axis);
+				M = glm::translate(M, -pivot);
+			}
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
+
 			glBindVertexArray(cubeVAO[i]);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glBindVertexArray(0);
@@ -411,11 +441,11 @@ GLvoid drawScene()
 
 	else if (!cubeMode)
 	{
-		// »ï°¢»Ô °¢ ¸é ±×¸®±â
+		// ì‚¼ê°ë¿” ê° ë©´ ê·¸ë¦¬ê¸°
 		for (int i = 0; i < 6; ++i)
 		{
 			glBindVertexArray(pyramidVAO[i]);
-			glDrawArrays(GL_TRIANGLES, 0, 3); // °¢ ¸éÀº »ï°¢Çü 1°³(3Á¤Á¡)
+			glDrawArrays(GL_TRIANGLES, 0, 3); // ê° ë©´ì€ ì‚¼ê°í˜• 1ê°œ(3ì •ì )
 			glBindVertexArray(0);
 		}
 	}

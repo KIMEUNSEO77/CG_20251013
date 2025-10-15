@@ -27,6 +27,8 @@ GLuint pyramidVAO[6] = { 0, }, pyramidVBO[6] = { 0 };   // 삼각뿔
 bool face[6] = { false, false, false, false, false, false }; // 면 켜기/끄기
 bool pFace[6] = { false, false, false, false, false, false }; // 삼각뿔 면
 
+bool cullMode = false;         // 면 제거 모드
+
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
 {
@@ -274,6 +276,12 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'q':
 		exit(0);
+		break;
+	case 'h':
+		cullMode = !cullMode;
+		if (cullMode) glEnable(GL_CULL_FACE);
+		else glDisable(GL_CULL_FACE);
+		glutPostRedisplay();
 		break;
 	}
 }
