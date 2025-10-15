@@ -95,14 +95,19 @@ float cubeColors[8][3] = {
 // 삼각뿔 vertex 좌표값
 float pyramid[5][3] =
 {
-	{0, 0.5f, 0}, {0.25f, 0, -0.25f}, {-0.25f, 0, -0.25f}, {-0.25f, 0, 0.25f},
-	{0.25f, 0, 0.25f}
+	{0, 0.3f, 0}, {0.15f, 0, -0.15f}, {-0.15f, 0, -0.15f}, {-0.15f, 0, 0.15f},
+	{0.15f, 0, 0.15f}
 };
 int pyramidFaces[6][3] = {
 	{1, 2, 3}, {1, 3, 4}, {0, 3, 2}, {0, 2, 1}, {0, 4, 3}, {0, 1, 4}  // 0, 1은 한 면
 };
-float pyramidColors[6][3] = {
-	{1,0,0}, {1,0,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // 색상
+// 삼각뿔 꼭짓점별 색상
+float pyramidColors[5][3] = {
+	{1,0,0},    // 0
+	{0,1,0},    // 1
+	{0,0,1},    // 2
+	{1,1,0},    // 3
+	{1,0,1}     // 4
 };
 
 void InitCube()
@@ -147,37 +152,38 @@ void InitCube()
 	}
 }
 
-	void InitPyramid()
+void InitPyramid()
+{
+	for (int i = 0; i < 6; i++)   // 6면 각각
 	{
-		for (int i = 0; i < 6; i++)   // 6면 각각
-		{
-			std::vector<GLfloat> vertices;
-			int v0 = pyramidFaces[i][0];
-			int v1 = pyramidFaces[i][1];
-			int v2 = pyramidFaces[i][2];
-			float* color = pyramidColors[i];
-			// 삼각형 1: v0, v1, v2
-			vertices.push_back(pyramid[v0][0]); vertices.push_back(pyramid[v0][1]); vertices.push_back(pyramid[v0][2]);
-			vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
-			vertices.push_back(pyramid[v1][0]); vertices.push_back(pyramid[v1][1]); vertices.push_back(pyramid[v1][2]);
-			vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
-			vertices.push_back(pyramid[v2][0]); vertices.push_back(pyramid[v2][1]); vertices.push_back(pyramid[v2][2]);
-			vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
-			glGenVertexArrays(1, &pyramidVAO[i]);
-			glGenBuffers(1, &pyramidVBO[i]);
-			glBindVertexArray(pyramidVAO[i]);
-			glBindBuffer(GL_ARRAY_BUFFER, pyramidVBO[i]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-			// 위치
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(0);
-			// 색상
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-			glEnableVertexAttribArray(1);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
-		}
+		std::vector<GLfloat> vertices;
+		int v0 = pyramidFaces[i][0];
+		int v1 = pyramidFaces[i][1];
+		int v2 = pyramidFaces[i][2];
+
+		// 삼각형 1: v0, v1, v2
+		vertices.push_back(pyramid[v0][0]); vertices.push_back(pyramid[v0][1]); vertices.push_back(pyramid[v0][2]);
+		vertices.push_back(pyramidColors[v0][0]); vertices.push_back(pyramidColors[v0][1]); vertices.push_back(pyramidColors[v0][2]);
+		vertices.push_back(pyramid[v1][0]); vertices.push_back(pyramid[v1][1]); vertices.push_back(pyramid[v1][2]);
+		vertices.push_back(pyramidColors[v1][0]); vertices.push_back(pyramidColors[v1][1]); vertices.push_back(pyramidColors[v1][2]);
+		vertices.push_back(pyramid[v2][0]); vertices.push_back(pyramid[v2][1]); vertices.push_back(pyramid[v2][2]);
+		vertices.push_back(pyramidColors[v2][0]); vertices.push_back(pyramidColors[v2][1]); vertices.push_back(pyramidColors[v2][2]);
+
+		glGenVertexArrays(1, &pyramidVAO[i]);
+		glGenBuffers(1, &pyramidVBO[i]);
+		glBindVertexArray(pyramidVAO[i]);
+		glBindBuffer(GL_ARRAY_BUFFER, pyramidVBO[i]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+		// 위치
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		// 색상
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
+}
 
 void InitAxis()
 {
@@ -327,17 +333,20 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		Reset();
 		break;
 	case 'f':
-		frontAnimation = !frontAnimation;
-		//rotatingY = false;
+		if (cubeMode) frontAnimation = !frontAnimation;
 		break;
 	case 't':
-		topAnimation = !topAnimation;
+		if (cubeMode) topAnimation = !topAnimation;
 		break;
 	case 's':
-		sideAnimation = !sideAnimation;
+		if (cubeMode) sideAnimation = !sideAnimation;
 		break;
 	case 'b':
-		backAnimation = !backAnimation;
+		if (cubeMode) backAnimation = !backAnimation;
+		break;
+	case 'o':
+		break;
+	case 'r':
 		break;
 	case 'q':
 		exit(0);
