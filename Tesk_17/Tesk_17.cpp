@@ -47,6 +47,11 @@ float topAngle = 0.0f; // 육면체 윗면 회전 각도
 bool sideAnimation = false;    // 육면체 x축 회전
 float sideAngle = 0.0f; // 육면체 옆면 회전 각도
 
+// 뒷면 크기 변화
+bool backAnimation = false;    // 육면체 뒷면 크기 변화
+float backScale = 1.0f; // 육면체 뒷면 크기
+int backDir = +1;           // +1: 증가, -1: 감소
+
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
 {
@@ -75,8 +80,16 @@ int faces[6][4] = {
 	{0, 4, 5, 1},   // 앞
 	{3, 2, 6, 7}    // 뒤
 };
-float faceColors[6][3] = {
-	{1,0,0}, {0,1,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // 색상
+// 정육면체 꼭짓점별 색상
+float cubeColors[8][3] = {
+	{1,0,0},    // 0
+	{0,1,0},    // 1
+	{0,0,1},    // 2
+	{1,1,0},    // 3
+	{1,0,1},    // 4
+	{0,1,1},    // 5
+	{0.5f,0.5f,0.5f}, // 6
+	{1,0.5f,0}  // 7
 };
 
 // 삼각뿔 vertex 좌표값
@@ -101,23 +114,22 @@ void InitCube()
 		int v1 = faces[i][1];
 		int v2 = faces[i][2];
 		int v3 = faces[i][3];
-		float* color = faceColors[i];
 
 		// 삼각형 1: v0, v1, v2
 		vertices.push_back(cube[v0][0]); vertices.push_back(cube[v0][1]); vertices.push_back(cube[v0][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v0][0]); vertices.push_back(cubeColors[v0][1]); vertices.push_back(cubeColors[v0][2]);
 		vertices.push_back(cube[v1][0]); vertices.push_back(cube[v1][1]); vertices.push_back(cube[v1][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v1][0]); vertices.push_back(cubeColors[v1][1]); vertices.push_back(cubeColors[v1][2]);
 		vertices.push_back(cube[v2][0]); vertices.push_back(cube[v2][1]); vertices.push_back(cube[v2][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v2][0]); vertices.push_back(cubeColors[v2][1]); vertices.push_back(cubeColors[v2][2]);
 
 		// 삼각형 2: v0, v2, v3
 		vertices.push_back(cube[v0][0]); vertices.push_back(cube[v0][1]); vertices.push_back(cube[v0][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v0][0]); vertices.push_back(cubeColors[v0][1]); vertices.push_back(cubeColors[v0][2]);
 		vertices.push_back(cube[v2][0]); vertices.push_back(cube[v2][1]); vertices.push_back(cube[v2][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v2][0]); vertices.push_back(cubeColors[v2][1]); vertices.push_back(cubeColors[v2][2]);
 		vertices.push_back(cube[v3][0]); vertices.push_back(cube[v3][1]); vertices.push_back(cube[v3][2]);
-		vertices.push_back(color[0]); vertices.push_back(color[1]); vertices.push_back(color[2]);
+		vertices.push_back(cubeColors[v3][0]); vertices.push_back(cubeColors[v3][1]); vertices.push_back(cubeColors[v3][2]);
 
 		glGenVertexArrays(1, &cubeVAO[i]);
 		glGenBuffers(1, &cubeVBO[i]);
@@ -249,6 +261,21 @@ void Timer(int value)
 		sideAngle += 2.0f;
 		glutPostRedisplay();
 	}
+	if (backAnimation)
+	{
+		backScale += backDir * 0.01f;
+		if (backScale >= 1.0f)
+		{
+			backScale = 1.0;
+			backDir = -1;
+		}
+		else if (backScale <= 0.2f)
+		{
+			backScale = 0.2f;
+			backDir = +1;
+		}
+		glutPostRedisplay();
+	}
 	glutTimerFunc(16, Timer, 0);
 }
 
@@ -308,6 +335,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 's':
 		sideAnimation = !sideAnimation;
+		break;
+	case 'b':
+		backAnimation = !backAnimation;
 		break;
 	case 'q':
 		exit(0);
@@ -489,6 +519,10 @@ GLvoid drawScene()
 				M = glm::translate(M, pivot);
 				M = glm::rotate(M, glm::radians(sideAngle), glm::vec3(1, 0, 0));
 				M = glm::translate(M, -pivot);
+			}
+			if (i == 5)
+			{
+				M = glm::scale(M, glm::vec3(backScale, backScale, backScale));
 			}
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
 
