@@ -28,7 +28,7 @@ bool cubeMode = false;         // 정육면체 모드
 bool pyramidMode = false;      // 삼각뿔 모드
 bool cullMode = false;         // 면 제거 모드
 
-float angleX = 30, angleY = -30; // 회전 각도
+float angleX = -30, angleY = 30; // 회전 각도
 bool rotatingX = false;
 bool rotatingY = false;
 bool directionX = true; // 회전 방향 (true: 시계, false: 반시계)
@@ -54,13 +54,16 @@ GLfloat axisVertices[] =
 // 정육면체 vertex 좌표값
 float cube[8][3] =
 {
-	{0, 0, 0}, {0.5f, 0, 0}, {0.5f, 0, 0.5f}, {0, 0, 0.5f},
-	{0, 0.5f, 0}, {0.5f, 0.5f, 0}, {0.5f, 0.5f, 0.5f}, {0, 0.5f, 0.5f}
+	{0.5f, 0, -0.5f}, {0, 0, -0.5f}, {0, 0, 0}, {0.5f, 0, 0},
+	{0.5f, 0.5f, -0.5f}, {0, 0.5f, -0.5f}, {0, 0.5f, 0}, {0.5f, 0.5f, 0}
 };
 int faces[6][4] = {
-	{1, 0, 5, 4}, {0, 3, 2, 1},
-	{1, 5, 6, 2}, {0, 4, 7, 3},
-	{4, 7, 6, 5}, {2, 6, 7, 3}
+	{0, 1, 2, 3}, // 아래면
+	{4, 7, 6, 5}, // 윗면
+	{1, 5, 6, 2}, // 뒷면
+	{0, 3, 7, 4}, // 앞면
+	{0, 4, 5, 1}, // 왼쪽
+	{3, 2, 6, 7}  // 오른쪽
 };
 // 정육면체 꼭짓점별 색상
 float cubeColors[8][3] = {
@@ -77,11 +80,11 @@ float cubeColors[8][3] = {
 // 삼각뿔 vertex 좌표값
 float pyramid[5][3] =
 {
-	{0, 0.5f, 0}, {-0.25f, 0, -0.25f}, {-0.25f, 0, 0.25f}, {0.25f, 0, 0.25f},
-	{0.25f, 0, -0.25f}
+	{0, 0.5f, 0}, {0.25f, 0, -0.25f}, {-0.25f, 0, -0.25f}, {-0.25f, 0, 0.25f},
+	{0.25f, 0, 0.25f}
 };
 int pyramidFaces[6][3] = {
-	{1, 2, 4}, {2, 3, 4} , {0, 1, 2}, {0, 2, 3}, {0, 3, 4}, {0, 4, 1}  // 0, 1은 한 면	
+	{1, 2, 3}, {1, 3, 4}, {0, 3, 2}, {0, 2, 1}, {0, 4, 3}, {0, 1, 4}  // 0, 1은 한 면
 };
 // 삼각뿔 꼭짓점별 색상
 float pyramidColors[5][3] = {
@@ -217,7 +220,7 @@ char* filetobuf(const char* file)
 void Reset()
 {
 	moveX = 0; moveY = 0;
-	angleX = 30; angleY = -30;
+	angleX = -30; angleY = 30;
 	rotatingX = false; rotatingY = false;
 	directionX = true; directionY = true;
 	glutPostRedisplay();
@@ -468,8 +471,8 @@ GLvoid drawScene()
 
 	// 2. 좌표축 그릴 때: 단위행렬(변환 없음) 적용
 	glm::mat4 axisModel = glm::mat4(1.0f);
-	axisModel = glm::rotate(axisModel, glm::radians(30.0f), glm::vec3(1, 0, 0));
-	axisModel = glm::rotate(axisModel, glm::radians(-30.0f), glm::vec3(0, 1, 0));
+	axisModel = glm::rotate(axisModel, glm::radians(-30.0f), glm::vec3(1, 0, 0));
+	axisModel = glm::rotate(axisModel, glm::radians(30.0f), glm::vec3(0, 1, 0));
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &axisModel[0][0]);
 	glBindVertexArray(axisVAO);

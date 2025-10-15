@@ -298,7 +298,7 @@ void main(int argc, char** argv)
 	InitPyramid();   // 삼각뿔 초기화
 
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
-	// glEnable(GL_CULL_FACE); // 면 제거
+	//glEnable(GL_CULL_FACE); // 면 제거
 	//glDepthFunc(GL_ALWAYS);   // 항상 통과
 
 	glutKeyboardFunc(Keyboard);
