@@ -56,12 +56,12 @@ float cube[8][3] =
 	{0.5f, 0.5f, -0.5f}, {0, 0.5f, -0.5f}, {0, 0.5f, 0}, {0.5f, 0.5f, 0}
 };
 int faces[6][4] = {
-	{0, 1, 2, 3}, // ¾Æ·¡¸é
-	{4, 7, 6, 5}, // À­¸é
-	{1, 5, 6, 2}, // µÞ¸é
-	{0, 3, 7, 4}, // ¾Õ¸é
-	{0, 4, 5, 1}, // ¿ÞÂÊ
-	{3, 2, 6, 7}  // ¿À¸¥ÂÊ
+	{0, 1, 2, 3},
+	{4, 7, 6, 5}, 
+	{1, 5, 6, 2}, 
+	{0, 3, 7, 4}, 
+	{0, 4, 5, 1}, 
+	{3, 2, 6, 7}  
 };
 float faceColors[6][3] = {
 	{1,0,0}, {0,1,0}, {0,0,1}, {1,1,0}, {1,0,1}, {0,1,1}   // »ö»ó
@@ -221,6 +221,15 @@ void Timer(int value)
 	glutTimerFunc(16, Timer, 0);
 }
 
+void Reset()
+{
+	angleX = -30; angleY = 30;
+	rotatingX = false; rotatingY = false;
+	directionX = true; directionY = true;
+	cubeMode = true;
+	glutPostRedisplay();
+}
+
 GLvoid Keyboard(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -252,6 +261,13 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 		*/
+	case 'y':
+		rotatingY = !rotatingY;
+		directionY = true;
+		break;
+	case 'c':
+		Reset();
+		break;
 	case 'q':
 		exit(0);
 		break;
