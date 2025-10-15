@@ -594,6 +594,39 @@ GLvoid drawScene()
 				M = glm::rotate(M, glm::radians(pyramidAngle), axis); // pyramidAngle은 네가 타이머에서 ±로 제어
 				M = glm::translate(M, -pivot);
 			}
+			if (i == 3)
+			{
+				// 회전축 설정
+				glm::vec3 A = { pyramid[2][0], pyramid[2][1], pyramid[2][2] }; // 밑변 한쪽
+				glm::vec3 B = { pyramid[1][0], pyramid[1][1], pyramid[1][2] }; // 밑변 다른쪽
+				glm::vec3 axis = glm::normalize(A - B);  // 경첩 방향(4→1)
+				glm::vec3 pivot = A;                      // A를 피벗으로 (중점 쓰려면 (A+B)*0.5f)
+				M = glm::translate(M, pivot);
+				M = glm::rotate(M, glm::radians(pyramidAngle), axis); // pyramidAngle은 네가 타이머에서 ±로 제어
+				M = glm::translate(M, -pivot);
+			}
+			if (i == 4)
+			{
+				// 회전축 설정
+				glm::vec3 A = { pyramid[4][0], pyramid[4][1], pyramid[4][2] }; // 밑변 한쪽
+				glm::vec3 B = { pyramid[3][0], pyramid[3][1], pyramid[3][2] }; // 밑변 다른쪽
+				glm::vec3 axis = glm::normalize(A - B);  // 경첩 방향(1→4)
+				glm::vec3 pivot = A;                      // A를 피벗으로 (중점 쓰려면 (A+B)*0.5f)
+				M = glm::translate(M, pivot);
+				M = glm::rotate(M, glm::radians(pyramidAngle), axis); // pyramidAngle은 네가 타이머에서 ±로 제어
+				M = glm::translate(M, -pivot);
+			}
+			if (i == 5)
+			{
+				// 회전축 설정
+				glm::vec3 A = { pyramid[1][0], pyramid[1][1], pyramid[1][2] }; // 밑변 한쪽
+				glm::vec3 B = { pyramid[4][0], pyramid[4][1], pyramid[4][2] }; // 밑변 다른쪽
+				glm::vec3 axis = glm::normalize(A - B);  // 경첩 방향(2→3)
+				glm::vec3 pivot = A;                      // A를 피벗으로 (중점 쓰려면 (A+B)*0.5f)
+				M = glm::translate(M, pivot);
+				M = glm::rotate(M, glm::radians(pyramidAngle), axis); // pyramidAngle은 네가 타이머에서 ±로 제어
+				M = glm::translate(M, -pivot);
+			}
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
 
 			glBindVertexArray(pyramidVAO[i]);
