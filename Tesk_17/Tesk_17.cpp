@@ -232,7 +232,7 @@ void Timer(int value)
 	{
 		if (directionX) angleX += 1.0f;  // 회전 속도
 		else angleX -= 1.0f;
-		
+
 		glutPostRedisplay();
 	}
 	else if (rotatingY)
@@ -296,15 +296,15 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		// 뒷면제거 적용, 해제
 	case 'u':
 		backfaceCulling = !backfaceCulling;
-		if (backfaceCulling) 
+		if (backfaceCulling)
 		{
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 		}
-		else 
+		else
 		{
 			glDisable(GL_CULL_FACE);
-			glCullFace(GL_BACK); 
+			glCullFace(GL_BACK);
 		}
 		glutPostRedisplay();
 		break;
@@ -343,7 +343,7 @@ void main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);  // 깊이 버퍼 추가
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("Tesk_16");
+	glutCreateWindow("Tesk_17");
 
 	glewExperimental = GL_TRUE;
 	glewInit();
