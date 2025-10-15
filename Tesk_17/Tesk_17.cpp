@@ -43,6 +43,10 @@ float speed = 1.0f; // 회전 속도
 bool topAnimation = false;    // 육면체 z축 회전
 float topAngle = 0.0f; // 육면체 윗면 회전 각도
 
+// 옆면 x축 기준 회전
+bool sideAnimation = false;    // 육면체 x축 회전
+float sideAngle = 0.0f; // 육면체 옆면 회전 각도
+
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
 {
@@ -448,7 +452,25 @@ GLvoid drawScene()
 
 			if (i == top)
 			{
+				glm::vec3 pivot = { (cube[4][0] + cube[6][0]) * 0.5f, cube[4][1], (cube[4][2] + cube[6][2]) * 0.5f }; // v4, v7 중점
+				M = glm::translate(M, pivot);
+				M = glm::rotate(M, glm::radians(topAngle), glm::vec3(0, 0, 1));
+				M = glm::translate(M, -pivot);
+			}
+			if (i == 3)
+			{
+				glm::vec3 pivot = { (cube[3][0] + cube[4][0]) * 0.5f, cube[3][1], (cube[3][2] + cube[4][2]) * 0.5f }; // v4, v7 중점
+				M = glm::translate(M, pivot);
+				M = glm::rotate(M, glm::radians(topAngle), glm::vec3(1, 0, 0));
+				M = glm::translate(M, -pivot);
+			}
 
+			if (i == 4)
+			{
+				glm::vec3 pivot = { (cube[2][0] + cube[5][0]) * 0.5f, cube[2][1], (cube[2][2] + cube[5][2]) * 0.5f }; // v4, v7 중점
+				M = glm::translate(M, pivot);
+				M = glm::rotate(M, glm::radians(topAngle), glm::vec3(1, 0, 0));
+				M = glm::translate(M, -pivot);
 			}
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
 
