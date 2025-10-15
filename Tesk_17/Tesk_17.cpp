@@ -522,7 +522,19 @@ GLvoid drawScene()
 			}
 			if (i == 5)
 			{
+				// 뒷면의 네 꼭짓점 in object space
+				glm::vec3 p3 = { cube[3][0], cube[3][1], cube[3][2] };
+				glm::vec3 p2 = { cube[2][0], cube[2][1], cube[2][2] };
+				glm::vec3 p6 = { cube[6][0], cube[6][1], cube[6][2] };
+				glm::vec3 p7 = { cube[7][0], cube[7][1], cube[7][2] };
+
+				// 면 중심(피벗)
+				glm::vec3 pivot = (p3 + p2 + p6 + p7) * 0.25f;
+
+				// 피벗 기준으로 스케일
+				M = glm::translate(M, pivot);
 				M = glm::scale(M, glm::vec3(backScale, backScale, backScale));
+				M = glm::translate(M, -pivot);
 			}
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
 
