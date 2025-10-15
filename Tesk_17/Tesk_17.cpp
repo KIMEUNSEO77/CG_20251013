@@ -52,6 +52,11 @@ bool backAnimation = false;    // 육면체 뒷면 크기 변화
 float backScale = 1.0f; // 육면체 뒷면 크기
 int backDir = +1;           // +1: 증가, -1: 감소
 
+// 사각뿔 애니메이션
+bool pyramidAnimation = false;
+float pyramidAngle = 0.0f; // 삼각뿔 회전 각도
+float dirP = +1;           // +1: 증가, -1: 감소
+
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
 {
@@ -282,6 +287,21 @@ void Timer(int value)
 		}
 		glutPostRedisplay();
 	}
+	if (pyramidAnimation)
+	{
+		pyramidAngle += 2.0f * dirP;
+		if (pyramidAngle >= 120.0f)
+		{
+			pyramidAngle = 120.0f;
+			dirP = -1;
+		}
+		else if (pyramidAngle <= 0.0f)
+		{
+			pyramidAngle = 0.0f;
+			dirP = 1;
+		}
+		glutPostRedisplay();
+	}
 	glutTimerFunc(16, Timer, 0);
 }
 
@@ -345,6 +365,7 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		if (cubeMode) backAnimation = !backAnimation;
 		break;
 	case 'o':
+		if (!cubeMode) pyramidAnimation = !pyramidAnimation;
 		break;
 	case 'r':
 		break;
@@ -558,6 +579,23 @@ GLvoid drawScene()
 		// 삼각뿔 각 면 그리기
 		for (int i = 0; i < 6; ++i)
 		{
+			glm::mat4 M = model;
+
+			if (i == 2)
+			{
+				// 회전축 설정
+				glm::vec3 A = { pyramid[3][0], pyramid[3][1], pyramid[3][2] }; // 밑변 한쪽
+				glm::vec3 B = { pyramid[2][0], pyramid[2][1], pyramid[2][2] }; // 밑변 다른쪽
+
+				glm::vec3 axis = glm::normalize(A - B);  // 경첩 방향(3→2)
+				glm::vec3 pivot = A;                      // A를 피벗으로 (중점 쓰려면 (A+B)*0.5f)
+
+				M = glm::translate(M, pivot);
+				M = glm::rotate(M, glm::radians(pyramidAngle), axis); // pyramidAngle은 네가 타이머에서 ±로 제어
+				M = glm::translate(M, -pivot);
+			}
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
+
 			glBindVertexArray(pyramidVAO[i]);
 			glDrawArrays(GL_TRIANGLES, 0, 3); // 각 면은 삼각형 1개(3정점)
 			glBindVertexArray(0);
