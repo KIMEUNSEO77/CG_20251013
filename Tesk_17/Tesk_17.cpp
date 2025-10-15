@@ -388,6 +388,7 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'o':
 		if (!cubeMode) pyramidAnimation = !pyramidAnimation;
+		pyramidAnimation2 = false;
 		break;
 	case 'r':
 		if (!cubeMode) pyramidAnimation2 = !pyramidAnimation2;
