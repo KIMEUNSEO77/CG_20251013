@@ -76,6 +76,11 @@ bool dirY = true; // +1: 시계, -1: 반시계
 float angleY_1 = 30.0f;
 float angleY_2 = 30.0f;
 
+bool rotatingCenter = false;  // 중앙 y축 기준 회전
+float angleC_1 = 0.0f;
+float angleC_2 = 0.0f;
+bool dirC = true; // +1: 시계, -1: 반시계
+
 void InitAxis()
 {
 	glGenVertexArrays(1, &axisVAO);
@@ -222,6 +227,33 @@ void Timer(int value)
 		}
 		glutPostRedisplay();
 	}
+	if (rotatingCenter)
+	{
+		if (objectMode == -1) // left
+		{
+			if (dirC) angleC_1 += 1.0f;  // 회전 속도
+			else angleC_1 -= 1.0f;
+		}
+		else if (objectMode == 1) // right
+		{
+			if (dirC) angleC_2 += 1.0f;  // 회전 속도
+			else angleC_2 -= 1.0f;
+		}
+		else // both
+		{
+			if (dirC)
+			{
+				angleC_1 += 1.0f;  // 회전 속도
+				angleC_2 += 1.0f;
+			}
+			else
+			{
+				angleC_1 -= 1.0f;
+				angleC_2 -= 1.0f;
+			}
+		}
+		glutPostRedisplay();
+	}
 	glutTimerFunc(16, Timer, 0);
 }
 
@@ -245,27 +277,32 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		rotatingX = true;
 		dirX = true;
 		rotatingY = false;
-		glutPostRedisplay();
 		break;
 	case 'X':
 		rotatingX = true;
 		dirX = false;
 		rotatingY = false;
-		glutPostRedisplay();
 		break;
 	case 'y':
 		rotatingY = true;
 		dirY = true;
 		rotatingX = false;
-		glutPostRedisplay();
 		break;
 	case 'Y':
 		rotatingY = true;
 		dirY = false;
 		rotatingX = false;
-		glutPostRedisplay();
 		break;
-	default:
+	case 'r':
+		rotatingCenter = true;
+		dirC = true;
+		break;
+	case 'R':
+		rotatingCenter = true;
+		dirC = false;
+		break;
+	case 'q':
+		exit(0);
 		break;
 	}
 }
@@ -387,6 +424,11 @@ GLvoid DrawCube(GLuint shaderProgramID)
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
 
+	if (rotatingCenter)
+	{
+		model = glm::rotate(model, glm::radians(angleC_1), glm::vec3(0, 1, 0));
+	}
+
 	model = glm::translate(model, center); // 중심을 원점으로 이동
 
 	model = glm::rotate(model, glm::radians(angleX_1), glm::vec3(1, 0, 0));
@@ -412,6 +454,12 @@ GLvoid DrawCone(GLuint shaderProgramID)
 
 	// --- 모델 행렬 구성 (위치 + 회전) ---
 	glm::mat4 M(1.0f);
+
+	if (rotatingCenter)
+	{
+		M = glm::rotate(M, glm::radians(angleC_2), glm::vec3(0, 1, 0));
+		M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
+	}
 	M = glm::translate(M, glm::vec3(0.35f, 0.125f, 0.0f)); // 위치
 	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
 	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));  // y축 회전
