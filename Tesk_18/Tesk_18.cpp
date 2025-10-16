@@ -19,6 +19,42 @@ GLuint shaderProgramID;
 GLuint vertexShader;
 GLuint fragmentShader;
 
+GLuint axisVAO = 0, axisVBO = 0;
+
+// 축 데이터 (위치, 색상)
+GLfloat axisVertices[] =
+{
+	// x축
+	-0.7f, 0.0f, 0.0f,   1,0,0,
+	0.7f, 0.0f, 0.0f,   1,0,0,
+	// y축
+	0.0f, -0.7f, 0.0f,   0,1,0,
+	0.0f, 0.7f, 0.0f,   0,1,0,
+	// z축
+	0.0f, 0.0f, -0.7f,   0,0,1,
+	0.0f, 0.0f, 0.8f,   0,0,1,
+};
+
+void InitAxis()
+{
+	glGenVertexArrays(1, &axisVAO);
+	glGenBuffers(1, &axisVBO);
+
+	glBindVertexArray(axisVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, axisVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
+
+	// 위치
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// 색상
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
 char* filetobuf(const char* file)
 {
 	FILE* fptr;
@@ -50,10 +86,10 @@ char* filetobuf(const char* file)
 void main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);  // 깊이 버퍼 추가
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("Tesk_18");
+	glutCreateWindow("Tesk_17");
 
 	glewExperimental = GL_TRUE;
 	glewInit();
@@ -61,6 +97,11 @@ void main(int argc, char** argv)
 	make_vertexShaders();
 	make_fragmentShaders();
 	shaderProgramID = make_shaderProgram();
+
+	InitAxis();   // 축 초기화
+
+	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
+
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutMainLoop();
@@ -128,12 +169,30 @@ GLuint make_shaderProgram()
 	return shaderID;
 }
 
+// 축 그리는 함수
+GLvoid DrawAxis(GLuint shaderProgramID)
+{
+	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
+
+	glm::mat4 axisModel = glm::mat4(1.0f);
+	axisModel = glm::rotate(axisModel, glm::radians(-30.0f), glm::vec3(1, 0, 0));
+	axisModel = glm::rotate(axisModel, glm::radians(30.0f), glm::vec3(0, 1, 0));
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &axisModel[0][0]);
+
+	glBindVertexArray(axisVAO);
+	glDrawArrays(GL_LINES, 0, 6);
+	glBindVertexArray(0);
+}
+
 GLvoid drawScene()
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // 이제 깊이 버퍼도 초기화
 
 	glUseProgram(shaderProgramID);
+
+	DrawAxis(shaderProgramID); // 축 그리기	
 
 	glutSwapBuffers();
 }
