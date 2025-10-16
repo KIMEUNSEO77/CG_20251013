@@ -322,9 +322,9 @@ void Timer(int value)
 			dirP2 = 1;
 			currentIdx = (currentIdx + 1) % 4 + 2;
 		}
-		glutPostRedisplay();
 	}
 	glutTimerFunc(16, Timer, 0);
+	glutPostRedisplay();
 }
 
 void Reset()
@@ -514,10 +514,16 @@ GLvoid drawScene()
 
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
-	//model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));  // 이동
+	glm::vec3 center(0.125f, 0.125f, -0.125f);
+
+	if (cubeMode)
+		model = glm::translate(model, center);
 
 	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
+	if (cubeMode)
+		model = glm::translate(model, -center);
+
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
 	int front = 4;
@@ -529,12 +535,12 @@ GLvoid drawScene()
 		{
 			glm::mat4 M = model;
 
-			if (i == front) 
+			if (i == front)
 			{
 				// 회전축 설정
 				glm::vec3 p0 = { cube[4][0], cube[4][1], cube[4][2] };   // v4
 				glm::vec3 p1 = { cube[5][0], cube[5][1], cube[5][2] };   // v7
-				glm::vec3 axis = glm::normalize(p0-p1);               // 모서리 방향 (여긴 (0,0,1))
+				glm::vec3 axis = glm::normalize(p0 - p1);               // 모서리 방향 (여긴 (0,0,1))
 				glm::vec3 pivot = p0;                                     // v4 기준 (중점 쓰려면 (p0+p1)*0.5f)
 
 				// 모델 공간 피벗 기준 회전: base * T(pivot) * R(axis, θ) * T(−pivot)

@@ -443,9 +443,12 @@ GLvoid drawScene()
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));  // 이동
+	if (cubeMode) model = glm::translate(model, center); // 중심을 원점으로 이동
 
 	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
+
+	if (cubeMode) model = glm::translate(model, -center); // 다시 원래 위치로 이동
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
