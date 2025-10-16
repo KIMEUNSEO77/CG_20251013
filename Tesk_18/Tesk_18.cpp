@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <vector>
 
 void make_vertexShaders();
 void make_fragmentShaders();
@@ -20,6 +21,7 @@ GLuint vertexShader;
 GLuint fragmentShader;
 
 GLuint axisVAO = 0, axisVBO = 0;
+GLuint cubeVAO[6] = { 0, }, cubeVBO[6] = { 0 };   // 정육면체
 
 // 축 데이터 (위치, 색상)
 GLfloat axisVertices[] =
@@ -33,6 +35,32 @@ GLfloat axisVertices[] =
 	// z축
 	0.0f, 0.0f, -0.7f,   0,0,1,
 	0.0f, 0.0f, 0.8f,   0,0,1,
+};
+
+// 정육면체 vertex 좌표값
+float cube[8][3] =
+{
+	{0.25f, 0, -0.25f}, {0, 0, -0.25f}, {0, 0, 0}, {0.25f, 0, 0},
+	{0.25f, 0.25f, -0.25f}, {0, 0.25f, -0.25f}, {0, 0.25f, 0}, {0.25f, 0.25f, 0}
+};
+int faces[6][4] = {
+	{0, 1, 2, 3},   // 아래
+	{4, 7, 6, 5},   // 윗
+	{1, 5, 6, 2},   // 안쪽옆면
+	{0, 3, 7, 4},   // 밖옆면
+	{0, 4, 5, 1},   // 앞
+	{3, 2, 6, 7}    // 뒤
+};
+// 정육면체 꼭짓점별 색상
+float cubeColors[8][3] = {
+	{1,0,0},    // 0
+	{0,1,0},    // 1
+	{0,0,1},    // 2
+	{1,1,0},    // 3
+	{1,0,1},    // 4
+	{0,1,1},    // 5
+	{0.5f,0.5f,0.5f}, // 6
+	{1,0.5f,0}  // 7
 };
 
 void InitAxis()
@@ -53,6 +81,48 @@ void InitAxis()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+void InitCube()
+{
+	for (int i = 0; i < 6; i++)   // 6면 각각
+	{
+		std::vector<GLfloat> vertices;
+		int v0 = faces[i][0];
+		int v1 = faces[i][1];
+		int v2 = faces[i][2];
+		int v3 = faces[i][3];
+
+		// 삼각형 1: v0, v1, v2
+		vertices.push_back(cube[v0][0]); vertices.push_back(cube[v0][1]); vertices.push_back(cube[v0][2]);
+		vertices.push_back(cubeColors[v0][0]); vertices.push_back(cubeColors[v0][1]); vertices.push_back(cubeColors[v0][2]);
+		vertices.push_back(cube[v1][0]); vertices.push_back(cube[v1][1]); vertices.push_back(cube[v1][2]);
+		vertices.push_back(cubeColors[v1][0]); vertices.push_back(cubeColors[v1][1]); vertices.push_back(cubeColors[v1][2]);
+		vertices.push_back(cube[v2][0]); vertices.push_back(cube[v2][1]); vertices.push_back(cube[v2][2]);
+		vertices.push_back(cubeColors[v2][0]); vertices.push_back(cubeColors[v2][1]); vertices.push_back(cubeColors[v2][2]);
+
+		// 삼각형 2: v0, v2, v3
+		vertices.push_back(cube[v0][0]); vertices.push_back(cube[v0][1]); vertices.push_back(cube[v0][2]);
+		vertices.push_back(cubeColors[v0][0]); vertices.push_back(cubeColors[v0][1]); vertices.push_back(cubeColors[v0][2]);
+		vertices.push_back(cube[v2][0]); vertices.push_back(cube[v2][1]); vertices.push_back(cube[v2][2]);
+		vertices.push_back(cubeColors[v2][0]); vertices.push_back(cubeColors[v2][1]); vertices.push_back(cubeColors[v2][2]);
+		vertices.push_back(cube[v3][0]); vertices.push_back(cube[v3][1]); vertices.push_back(cube[v3][2]);
+		vertices.push_back(cubeColors[v3][0]); vertices.push_back(cubeColors[v3][1]); vertices.push_back(cubeColors[v3][2]);
+
+		glGenVertexArrays(1, &cubeVAO[i]);
+		glGenBuffers(1, &cubeVBO[i]);
+		glBindVertexArray(cubeVAO[i]);
+		glBindBuffer(GL_ARRAY_BUFFER, cubeVBO[i]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+		// 위치
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		// 색상
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
 }
 
 char* filetobuf(const char* file)
@@ -99,6 +169,7 @@ void main(int argc, char** argv)
 	shaderProgramID = make_shaderProgram();
 
 	InitAxis();   // 축 초기화
+	InitCube();   // 정육면체 초기화
 
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
 
@@ -185,6 +256,25 @@ GLvoid DrawAxis(GLuint shaderProgramID)
 	glBindVertexArray(0);
 }
 
+// 정육면체 그리는 함수
+GLvoid DrawCube(GLuint shaderProgramID)
+{
+	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
+	// 모델 변환 적용 (30도씩 회전)
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(1, 0, 0));
+	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(0, 1, 0));
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
+	// 각 면별로 그리기
+	for (int i = 0; i < 6; ++i)
+	{
+		glm::mat4 M = model;
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
+		glBindVertexArray(cubeVAO[i]);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+	}
+}
 GLvoid drawScene()
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -193,6 +283,7 @@ GLvoid drawScene()
 	glUseProgram(shaderProgramID);
 
 	DrawAxis(shaderProgramID); // 축 그리기	
+	DrawCube(shaderProgramID); // 정육면체 그리기
 
 	glutSwapBuffers();
 }
