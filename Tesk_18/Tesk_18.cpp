@@ -67,6 +67,14 @@ float cubeColors[8][3] = {
 };
 
 int objectMode = -1;   // -1: left, 0: 둘 다, 1: right
+bool rotatingX = false;
+bool dirX = true; // +1: 시계, -1: 반시계
+float angleX_1 = -30.0f;
+float angleX_2 = -30.0f;
+bool rotatingY = false;
+bool dirY = true; // +1: 시계, -1: 반시계
+float angleY_1 = 30.0f;
+float angleY_2 = 30.0f;
 
 void InitAxis()
 {
@@ -158,13 +166,117 @@ char* filetobuf(const char* file)
 	// Return the buffer 
 }
 
+void Timer(int value)
+{
+	if (rotatingX)
+	{
+		if (objectMode == -1) // left
+		{
+			if (dirX) angleX_1 += 1.0f;  // 회전 속도
+			else angleX_1 -= 1.0f;
+		}
+		else if (objectMode == 1) // right
+		{
+			if (dirX) angleX_2 += 1.0f;  // 회전 속도
+			else angleX_2 -= 1.0f;
+		}
+		else // both
+		{
+			if (dirX)
+			{
+				angleX_1 += 1.0f;  // 회전 속도
+				angleX_2 += 1.0f;
+			}
+			else
+			{
+				angleX_1 -= 1.0f;
+				angleX_2 -= 1.0f;
+			}
+		}
+		glutPostRedisplay();
+	}
+	else if (rotatingY)
+	{
+		if (objectMode == -1) // left
+		{
+			if (dirY) angleY_1 += 1.0f;  // 회전 속도
+			else angleY_1 -= 1.0f;
+		}
+		else if (objectMode == 1) // right
+		{
+			if (dirY) angleY_2 += 1.0f;  // 회전 속도
+			else angleY_2 -= 1.0f;
+		}
+		else // both
+		{
+			if (dirY)
+			{
+				angleY_1 += 1.0f;  // 회전 속도
+				angleY_2 += 1.0f;
+			}
+			else
+			{
+				angleY_1 -= 1.0f;
+				angleY_2 -= 1.0f;
+			}
+		}
+		glutPostRedisplay();
+	}
+	glutTimerFunc(16, Timer, 0);
+}
+
+GLvoid Keyboard(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case '1':
+		objectMode = -1; // left
+		glutPostRedisplay();
+		break;
+	case '3':
+		objectMode = 0; // both
+		glutPostRedisplay();
+		break;
+	case '2':
+		objectMode = 1; // right
+		glutPostRedisplay();
+		break;
+	case 'x':
+		rotatingX = true;
+		dirX = true;
+		rotatingY = false;
+		glutPostRedisplay();
+		break;
+	case 'X':
+		rotatingX = true;
+		dirX = false;
+		rotatingY = false;
+		glutPostRedisplay();
+		break;
+	case 'y':
+		rotatingY = true;
+		dirY = true;
+		rotatingX = false;
+		glutPostRedisplay();
+		break;
+	case 'Y':
+		rotatingY = true;
+		dirY = false;
+		rotatingX = false;
+		glutPostRedisplay();
+		break;
+	default:
+		break;
+	}
+}
+
 void main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);  // 깊이 버퍼 추가
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(width, height);
-	glutCreateWindow("Tesk_17");
+	glutCreateWindow("Tesk_18");
 
 	glewExperimental = GL_TRUE;
 	glewInit();
@@ -180,6 +292,8 @@ void main(int argc, char** argv)
 
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
 
+	glutTimerFunc(0, Timer, 0); // 타이머 콜백 등록
+	glutKeyboardFunc(Keyboard);
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(Reshape);
 	glutMainLoop();
@@ -267,10 +381,19 @@ GLvoid DrawAxis(GLuint shaderProgramID)
 GLvoid DrawCube(GLuint shaderProgramID)
 {
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
+
+	glm::vec3 center(-0.375f, 0.125f, -0.125f);
+
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(1, 0, 0));
-	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(0, 1, 0));
+
+	model = glm::translate(model, center); // 중심을 원점으로 이동
+
+	model = glm::rotate(model, glm::radians(angleX_1), glm::vec3(1, 0, 0));
+	model = glm::rotate(model, glm::radians(angleY_1), glm::vec3(0, 1, 0));
+
+	model = glm::translate(model, -center); // 다시 원래 위치로 이동
+
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 	// 각 면별로 그리기
 	for (int i = 0; i < 6; ++i)
@@ -290,8 +413,8 @@ GLvoid DrawCone(GLuint shaderProgramID)
 	// --- 모델 행렬 구성 (위치 + 회전) ---
 	glm::mat4 M(1.0f);
 	M = glm::translate(M, glm::vec3(0.35f, 0.125f, 0.0f)); // 위치
-	M = glm::rotate(M, glm::radians(-30.0f), glm::vec3(1, 0, 0)); // x축 회전
-	M = glm::rotate(M, glm::radians(30.0f), glm::vec3(0, 1, 0));  // y축 회전
+	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
+	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));  // y축 회전
 
 	// --- 셰이더에 uModel 전달 ---
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
