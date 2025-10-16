@@ -9,7 +9,7 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
-
+#pragma comment (lib, "glu32.lib")
 void make_vertexShaders();
 void make_fragmentShaders();
 GLuint make_shaderProgram();
@@ -19,6 +19,9 @@ GLint width = 800, height = 800;
 GLuint shaderProgramID;
 GLuint vertexShader;
 GLuint fragmentShader;
+
+// --- GLU 원뿔용 쿼드릭 핸들 ---
+GLUquadric* gQuadric = nullptr;
 
 GLuint axisVAO = 0, axisVBO = 0;
 GLuint cubeVAO[6] = { 0, }, cubeVBO[6] = { 0 };   // 정육면체
@@ -62,6 +65,8 @@ float cubeColors[8][3] = {
 	{0.5f,0.5f,0.5f}, // 6
 	{1,0.5f,0}  // 7
 };
+
+int objectMode = -1;   // -1: left, 0: 둘 다, 1: right
 
 void InitAxis()
 {
@@ -163,6 +168,8 @@ void main(int argc, char** argv)
 
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	gQuadric = gluNewQuadric();  // GLU 쿼드릭 객체 생성
 
 	make_vertexShaders();
 	make_fragmentShaders();
@@ -275,6 +282,34 @@ GLvoid DrawCube(GLuint shaderProgramID)
 		glBindVertexArray(0);
 	}
 }
+
+GLvoid DrawCone(GLuint shaderProgramID)
+{
+	if (!gQuadric) return;  // 안전 장치
+
+	// --- 모델 행렬 구성 (위치 + 회전) ---
+	glm::mat4 M(1.0f);
+	M = glm::translate(M, glm::vec3(0.35f, 0.125f, 0.0f)); // 위치
+	M = glm::rotate(M, glm::radians(-30.0f), glm::vec3(1, 0, 0)); // x축 회전
+	M = glm::rotate(M, glm::radians(30.0f), glm::vec3(0, 1, 0));  // y축 회전
+
+	// --- 셰이더에 uModel 전달 ---
+	GLint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
+
+	// --- 원뿔 그리기 ---
+	// baseRadius=0.18, topRadius=0 → 원뿔
+	gluCylinder(gQuadric,
+		(GLdouble)0.1,  // 밑면 반지름
+		0.0,             // 윗면 반지름 (0이면 원뿔)
+		(GLdouble)0.3,  // 높이
+		(GLint)20,       // 둘레 분할
+		(GLint)8);       // 세로 분할
+
+	// --- 바닥 막기 (옵션) ---
+	//gluDisk(gQuadric, 0.0, (GLdouble)0.18, (GLint)48, 1);
+}
+
 GLvoid drawScene()
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -284,6 +319,8 @@ GLvoid drawScene()
 
 	DrawAxis(shaderProgramID); // 축 그리기	
 	DrawCube(shaderProgramID); // 정육면체 그리기
+
+	DrawCone(shaderProgramID);   // 원뿔 그리기
 
 	glutSwapBuffers();
 }
