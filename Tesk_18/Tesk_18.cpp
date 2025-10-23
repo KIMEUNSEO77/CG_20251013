@@ -81,6 +81,11 @@ float angleC_1 = 0.0f;
 float angleC_2 = 0.0f;
 bool dirC = true; // +1: 시계, -1: 반시계
 
+float curScale = 1.0f;
+int dirS = +1;           // +1: 증가, -1: 감소
+bool scaling = false;
+bool scalingCenter = false;
+
 void InitAxis()
 {
 	glGenVertexArrays(1, &axisVAO);
@@ -254,6 +259,37 @@ void Timer(int value)
 		}
 		glutPostRedisplay();
 	}
+	if (scaling)
+	{
+		curScale += dirS * 0.01f;
+
+		if (curScale >= 1.5f)
+		{
+			curScale = 1.5f;
+			dirS = -1;
+		}
+		else if (curScale <= 0.2f)
+		{
+			curScale = 0.2f;
+			dirS = +1;
+		}
+		glutPostRedisplay();
+	}
+	if (scalingCenter)
+	{
+		curScale += dirS * 0.01f;
+		if (curScale >= 1.5f)
+		{
+			curScale = 1.5f;
+			dirS = -1;
+		}
+		else if (curScale <= 0.2f)
+		{
+			curScale = 0.2f;
+			dirS = +1;
+		}
+		glutPostRedisplay();
+	}
 	glutTimerFunc(16, Timer, 0);
 }
 
@@ -274,32 +310,40 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'x':
-		rotatingX = true;
+		rotatingX = !rotatingX;
 		dirX = true;
 		rotatingY = false;
 		break;
 	case 'X':
-		rotatingX = true;
+		rotatingX = !rotatingX;
 		dirX = false;
 		rotatingY = false;
 		break;
 	case 'y':
-		rotatingY = true;
+		rotatingY = !rotatingY;
 		dirY = true;
 		rotatingX = false;
 		break;
 	case 'Y':
-		rotatingY = true;
+		rotatingY = !rotatingY;
 		dirY = false;
 		rotatingX = false;
 		break;
 	case 'r':
-		rotatingCenter = true;
+		rotatingCenter = !rotatingCenter;
 		dirC = true;
 		break;
 	case 'R':
-		rotatingCenter = true;
+		rotatingCenter = !rotatingCenter;
 		dirC = false;
+		break;
+	case 'a':
+		scaling = !scaling;
+		scalingCenter = false;
+		break;
+	case 'b':
+		scalingCenter = !scalingCenter;
+		scaling = false;
 		break;
 	case 'q':
 		exit(0);
@@ -431,10 +475,24 @@ GLvoid DrawCube(GLuint shaderProgramID)
 
 	model = glm::translate(model, center); // 중심을 원점으로 이동
 
-	model = glm::rotate(model, glm::radians(angleY_1), glm::vec3(0, 1, 0)) *
-		glm::rotate(model, glm::radians(angleX_1), glm::vec3(1, 0, 0));
+	model = glm::rotate(model, glm::radians(angleY_1), glm::vec3(0, 1, 0));
+	model = glm::rotate(model, glm::radians(angleX_1), glm::vec3(1, 0, 0));
 
 	model = glm::translate(model, -center); // 다시 원래 위치로 이동
+
+	if (objectMode == 0 || objectMode == -1) // both
+	{
+		if (!scalingCenter)
+		{
+			model = glm::translate(model, center); // 위치
+			model = glm::scale(model, glm::vec3(curScale, curScale, curScale)); // 스케일링
+			model = glm::translate(model, -center); // 다시 원래 위치로 이동
+		}
+		else
+			{
+			model = glm::scale(model, glm::vec3(curScale, curScale, curScale)); // 스케일링
+		}
+	}
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 	// 각 면별로 그리기
@@ -458,11 +516,19 @@ GLvoid DrawCone(GLuint shaderProgramID)
 	if (rotatingCenter)
 	{
 		M = glm::rotate(M, glm::radians(angleC_2), glm::vec3(0, 1, 0));
-		M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
+		// M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
+	}
+	if (scalingCenter && (objectMode == 0 || objectMode == 1))
+	{
+		M = glm::scale(M, glm::vec3(curScale, curScale, curScale)); // 스케일링
+		// M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
 	}
 	M = glm::translate(M, glm::vec3(0.35f, 0.125f, 0.0f)); // 위치
-	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0)) *
-		glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
+	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));
+	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
+
+	if (scaling && (objectMode == 0 || objectMode == 1)) // both
+		M = glm::scale(M, glm::vec3(curScale, curScale, curScale)); // 스케일링
 
 	// --- 셰이더에 uModel 전달 ---
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
