@@ -431,8 +431,8 @@ GLvoid DrawCube(GLuint shaderProgramID)
 
 	model = glm::translate(model, center); // 중심을 원점으로 이동
 
-	model = glm::rotate(model, glm::radians(angleX_1), glm::vec3(1, 0, 0));
-	model = glm::rotate(model, glm::radians(angleY_1), glm::vec3(0, 1, 0));
+	model = glm::rotate(model, glm::radians(angleY_1), glm::vec3(0, 1, 0)) *
+		glm::rotate(model, glm::radians(angleX_1), glm::vec3(1, 0, 0));
 
 	model = glm::translate(model, -center); // 다시 원래 위치로 이동
 
@@ -461,8 +461,8 @@ GLvoid DrawCone(GLuint shaderProgramID)
 		M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
 	}
 	M = glm::translate(M, glm::vec3(0.35f, 0.125f, 0.0f)); // 위치
-	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
-	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));  // y축 회전
+	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0)) *
+		glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
 
 	// --- 셰이더에 uModel 전달 ---
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
