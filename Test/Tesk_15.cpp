@@ -306,7 +306,7 @@ void main(int argc, char** argv)
 	InitPyramid();   // 삼각뿔 초기화
 
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
-	//glEnable(GL_CULL_FACE); // 면 제거
+	// glEnable(GL_CULL_FACE); // 면 제거
 	//glDepthFunc(GL_ALWAYS);   // 항상 통과
 
 	glutKeyboardFunc(Keyboard);
@@ -384,7 +384,7 @@ GLvoid drawScene()
 
 	glUseProgram(shaderProgramID);
 
-	// 모델 변환 적용 (30도씩 회전)
+	// 모델 변환 30도씩 회전
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(0, 1, 0));
@@ -397,7 +397,7 @@ GLvoid drawScene()
 	{
 		if (!face[i]) continue; // 해당 면이 false이면 건너뜀
 		glBindVertexArray(cubeVAO[i]);
-		glDrawArrays(GL_TRIANGLES, 0, 6); // 각 면은 삼각형 2개(6정점)
+		glDrawArrays(GL_TRIANGLES, 0, 6); // 각 면은 6개 정점
 		glBindVertexArray(0);
 	}
 

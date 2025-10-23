@@ -56,8 +56,8 @@ GLfloat axisVertices[] =
 // 정육면체 vertex 좌표값
 float cube[8][3] =
 {
-	{0.5f, 0, -0.5f}, {0, 0, -0.5f}, {0, 0, 0}, {0.5f, 0, 0},
-	{0.5f, 0.5f, -0.5f}, {0, 0.5f, -0.5f}, {0, 0.5f, 0}, {0.5f, 0.5f, 0}
+	{0.25f, 0, -0.25f}, {-0.25f, 0, -0.25f}, {-0.25f, 0, 0.25f}, {0.25f, 0, 0.25f},
+	{0.25f, 0.5f, -0.25f}, {-0.25f, 0.5f, -0.25f}, {-0.25f, 0.5f, 0.25f}, {0.25f, 0.5f, 0.25f}
 };
 int faces[6][4] = {
 	{0, 1, 2, 3}, // 아래면
@@ -440,15 +440,18 @@ GLvoid drawScene()
 
 	glUseProgram(shaderProgramID);
 
-	// 모델 변환 적용 (30도씩 회전)
+	// 모델 변환 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));  // 이동
-	if (cubeMode) model = glm::translate(model, center); // 중심을 원점으로 이동
 
-	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
-	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
+	glm::vec3 pivot = { (cube[0][0] + cube[1][0]) * 0.5f, (cube[0][1] + cube[1][1]) * 0.5f, (cube[0][2] + cube[1][2]) * 0.5f}; // v4, v6 중간
 
-	if (cubeMode) model = glm::translate(model, -center); // 다시 원래 위치로 이동
+	model = glm::translate(model, pivot);
+	
+	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0)) *
+		glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0)) *
+		glm::translate(model, glm::vec3(moveX, moveY, 0.0f));
+
+	model = glm::translate(model, -pivot);
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
