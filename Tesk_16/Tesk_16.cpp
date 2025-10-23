@@ -56,8 +56,8 @@ GLfloat axisVertices[] =
 // Á¤À°¸éÃ¼ vertex ÁÂÇ¥°ª
 float cube[8][3] =
 {
-	{0.25f, 0, -0.25f}, {-0.25f, 0, -0.25f}, {-0.25f, 0, 0.25f}, {0.25f, 0, 0.25f},
-	{0.25f, 0.5f, -0.25f}, {-0.25f, 0.5f, -0.25f}, {-0.25f, 0.5f, 0.25f}, {0.25f, 0.5f, 0.25f}
+	{0.15f, 0, -0.15f}, {-0.15f, 0, -0.15f}, {-0.15f, 0, 0.15f}, {0.15f, 0, 0.15f},
+	{0.15f, 0.3f, -0.15f}, {-0.15f, 0.3f, -0.15f}, {-0.15f, 0.3f, 0.15f}, {0.15f, 0.3f, 0.15f}
 };
 int faces[6][4] = {
 	{0, 1, 2, 3}, // ¾Æ·¡¸é
@@ -82,8 +82,8 @@ float cubeColors[8][3] = {
 // »ï°¢»Ô vertex ÁÂÇ¥°ª
 float pyramid[5][3] =
 {
-	{0, 0.5f, 0}, {0.25f, 0, -0.25f}, {-0.25f, 0, -0.25f}, {-0.25f, 0, 0.25f},
-	{0.25f, 0, 0.25f}
+	{0, 0.3f, 0}, {0.15f, 0, -0.15f}, {-0.15f, 0, -0.15f}, {-0.15f, 0, 0.15f},
+	{0.15f, 0, 0.15f}
 };
 int pyramidFaces[6][3] = {
 	{1, 2, 3}, {1, 3, 4}, {0, 3, 2}, {0, 2, 1}, {0, 4, 3}, {0, 1, 4}  // 0, 1Àº ÇÑ ¸é
@@ -277,10 +277,12 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'x':
 		rotatingX = true;
 		directionX = true;
+		rotatingY = false;
 		break;
 	case 'X':
 		rotatingX = true;
 		directionX = false;
+		rotatingY = false;
 		break;
 	case 'y':
 		rotatingX = false;
@@ -443,15 +445,19 @@ GLvoid drawScene()
 	// ¸ðµ¨ º¯È¯ (30µµ¾¿ È¸Àü)
 	glm::mat4 model = glm::mat4(1.0f);
 
-	glm::vec3 pivot = { (cube[0][0] + cube[1][0]) * 0.5f, (cube[0][1] + cube[1][1]) * 0.5f, (cube[0][2] + cube[1][2]) * 0.5f}; // v4, v6 Áß°£
+	//glm::vec3 pivot = { (cube[0][0] + cube[1][0]) * 0.5f, (cube[0][1] + cube[1][1]) * 0.5f, (cube[0][2] + cube[1][2]) * 0.5f}; // v4, v6 Áß°£
 
-	model = glm::translate(model, pivot);
+	//model = glm::translate(model, pivot);
 	
-	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0)) *
-		glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0)) *
-		glm::translate(model, glm::vec3(moveX, moveY, 0.0f));
+	//model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
+	//model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
+	//model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));
 
-	model = glm::translate(model, -pivot);
+	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0)) *
+			glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0)) *
+			glm::translate(model, glm::vec3(moveX, moveY, 0.0f));
+
+	//model = glm::translate(model, -pivot);
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
