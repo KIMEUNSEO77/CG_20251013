@@ -86,6 +86,12 @@ int dirS = +1;           // +1: 증가, -1: 감소
 bool scaling = false;
 bool scalingCenter = false;
 
+float moveX_1 = 0.0f;
+float moveX_2 = 0.0f;
+float dirMoveX_1 = +1;
+float dirMoveX_2 = +1;
+bool translatingX = false;
+
 void InitAxis()
 {
 	glGenVertexArrays(1, &axisVAO);
@@ -290,6 +296,37 @@ void Timer(int value)
 		}
 		glutPostRedisplay();
 	}
+	if (translatingX && (objectMode == -1 || objectMode == 0))
+	{
+		moveX_1 += dirMoveX_1 * 0.01f;
+
+		if (moveX_1 >= 0.8f)
+		{
+			moveX_1 = 0.8f;
+			dirMoveX_1 = -1;
+		}
+		else if (moveX_1 <= -0.5f)
+		{
+			moveX_1 = -0.5f;
+			dirMoveX_1 = +1;
+		}
+		glutPostRedisplay();
+	}
+	if (translatingX && (objectMode == 1 || objectMode == 0))
+	{
+		moveX_2 += dirMoveX_2 * 0.01f;
+		if (moveX_2 >= 0.8f)
+		{
+			moveX_2 = 0.8f;
+			dirMoveX_2 = -1;
+		}
+		else if (moveX_2 <= -0.7f)
+		{
+			moveX_2 = -0.7f;
+			dirMoveX_2 = +1;
+		}
+		glutPostRedisplay();
+	}
 	glutTimerFunc(16, Timer, 0);
 }
 
@@ -344,6 +381,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	case 'b':
 		scalingCenter = !scalingCenter;
 		scaling = false;
+		break;
+	case 'd':
+		translatingX = !translatingX;
 		break;
 	case 'q':
 		exit(0);
@@ -475,8 +515,16 @@ GLvoid DrawCube(GLuint shaderProgramID)
 
 	model = glm::translate(model, center); // 중심을 원점으로 이동
 
-	model = glm::rotate(model, glm::radians(angleY_1), glm::vec3(0, 1, 0));
-	model = glm::rotate(model, glm::radians(angleX_1), glm::vec3(1, 0, 0));
+	// 회전 행렬 생성
+	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_1), glm::vec3(0, 1, 0));
+	rot = glm::rotate(rot, glm::radians(angleX_1), glm::vec3(1, 0, 0));
+	glm::vec3 movedir = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
+
+	// 회전 적용
+	model = rot;
+
+	// 이동 적용
+	model = glm::translate(model, movedir * moveX_1);
 
 	model = glm::translate(model, -center); // 다시 원래 위치로 이동
 

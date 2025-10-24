@@ -444,20 +444,18 @@ GLvoid drawScene()
 
 	// 모델 변환 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
-
-	//glm::vec3 pivot = { (cube[0][0] + cube[1][0]) * 0.5f, (cube[0][1] + cube[1][1]) * 0.5f, (cube[0][2] + cube[1][2]) * 0.5f}; // v4, v6 중간
-
-	//model = glm::translate(model, pivot);
 	
-	//model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
-	//model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0));
-	//model = glm::translate(model, glm::vec3(moveX, moveY, 0.0f));
+	glm::vec3 center = glm::vec3(0.0f, 0.15f, 0.0f);
 
-	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0)) *
-			glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0)) *
-			glm::translate(model, glm::vec3(moveX, moveY, 0.0f));
+	model = glm::translate(model, center);
+	// 회전 행렬 생성
+	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY), glm::vec3(0, 1, 0));
+	rot = glm::rotate(rot, glm::radians(angleX), glm::vec3(1, 0, 0));
+	glm::vec3 movedir = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
 
-	//model = glm::translate(model, -pivot);
+	// 회전 적용
+	model = rot;
+	model = glm::translate(model, -center);
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
