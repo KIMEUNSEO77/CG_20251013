@@ -455,6 +455,8 @@ GLvoid drawScene()
 
 	// 회전 적용
 	model = rot;
+	// 이동 적용
+	model = glm::translate(model, glm::vec3(moveX, moveY, 0));
 	model = glm::translate(model, -center);
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");

@@ -89,7 +89,7 @@ bool scalingCenter = false;
 float moveX_1 = 0.0f;
 float moveX_2 = 0.0f;
 float dirMoveX_1 = +1;
-float dirMoveX_2 = +1;
+float dirMoveX_2 = -1;
 bool translatingX = false;
 
 void InitAxis()
@@ -305,9 +305,9 @@ void Timer(int value)
 			moveX_1 = 0.8f;
 			dirMoveX_1 = -1;
 		}
-		else if (moveX_1 <= -0.5f)
+		else if (moveX_1 <= -0.8f)
 		{
-			moveX_1 = -0.5f;
+			moveX_1 = -0.8f;
 			dirMoveX_1 = +1;
 		}
 		glutPostRedisplay();
@@ -320,9 +320,9 @@ void Timer(int value)
 			moveX_2 = 0.8f;
 			dirMoveX_2 = -1;
 		}
-		else if (moveX_2 <= -0.7f)
+		else if (moveX_2 <= -0.8f)
 		{
-			moveX_2 = -0.7f;
+			moveX_2 = -0.8f;
 			dirMoveX_2 = +1;
 		}
 		glutPostRedisplay();
@@ -571,9 +571,15 @@ GLvoid DrawCone(GLuint shaderProgramID)
 		M = glm::scale(M, glm::vec3(curScale, curScale, curScale)); // 스케일링
 		// M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
 	}
-	M = glm::translate(M, glm::vec3(0.35f, 0.125f, 0.0f)); // 위치
+	
+	M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f)); // 위치
 	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));
 	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
+	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_2), glm::vec3(0, 1, 0));
+	rot = glm::rotate(rot, glm::radians(angleX_2), glm::vec3(1, 0, 0));
+
+	glm::vec3 movedir = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
+	M = glm::translate(M, movedir * moveX_2);
 
 	if (scaling && (objectMode == 0 || objectMode == 1)) // both
 		M = glm::scale(M, glm::vec3(curScale, curScale, curScale)); // 스케일링
