@@ -92,6 +92,12 @@ float dirMoveX_1 = +1;
 float dirMoveX_2 = -1;
 bool translatingX = false;
 
+float moveY_1 = 0.0f;
+float moveY_2 = 0.0f;
+float dirMoveY_1 = +1;
+float dirMoveY_2 = -1;
+bool translatingY = false;
+
 void InitAxis()
 {
 	glGenVertexArrays(1, &axisVAO);
@@ -300,14 +306,14 @@ void Timer(int value)
 	{
 		moveX_1 += dirMoveX_1 * 0.01f;
 
-		if (moveX_1 >= 0.8f)
+		if (moveX_1 >= 1.3f)
 		{
-			moveX_1 = 0.8f;
+			moveX_1 = 1.3f;
 			dirMoveX_1 = -1;
 		}
-		else if (moveX_1 <= -0.8f)
+		else if (moveX_1 <= -0.7f)
 		{
-			moveX_1 = -0.8f;
+			moveX_1 = -0.7f;
 			dirMoveX_1 = +1;
 		}
 		glutPostRedisplay();
@@ -315,9 +321,9 @@ void Timer(int value)
 	if (translatingX && (objectMode == 1 || objectMode == 0))
 	{
 		moveX_2 += dirMoveX_2 * 0.01f;
-		if (moveX_2 >= 1.0f)
+		if (moveX_2 >= 0.7f)
 		{
-			moveX_2 = 1.0f;
+			moveX_2 = 0.7f;
 			dirMoveX_2 = -1;
 		}
 		else if (moveX_2 <= -1.0f)
@@ -328,6 +334,37 @@ void Timer(int value)
 		glutPostRedisplay();
 	}
 	glutTimerFunc(16, Timer, 0);
+
+	if (translatingY && (objectMode == -1 || objectMode == 0))
+	{
+		moveY_1 += dirMoveY_1 * 0.01f;
+		if (moveY_1 >= 0.7f)
+		{
+			moveY_1 = 0.7f;
+			dirMoveY_1 = -1;
+		}
+		else if (moveY_1 <= -0.7f)
+		{
+			moveY_1 = -0.7f;
+			dirMoveY_1 = +1;
+		}
+		glutPostRedisplay();
+	}
+	if (translatingY && (objectMode == 1 || objectMode == 0))
+	{
+		moveY_2 += dirMoveY_2 * 0.01f;
+		if (moveY_2 >= 0.7f)
+		{
+			moveY_2 = 0.7f;
+			dirMoveY_2 = -1;
+		}
+		else if (moveY_2 <= -0.7f)
+		{
+			moveY_2 = -0.7f;
+			dirMoveY_2 = +1;
+		}
+		glutPostRedisplay();
+	}
 }
 
 GLvoid Keyboard(unsigned char key, int x, int y)
@@ -384,6 +421,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'd':
 		translatingX = !translatingX;
+		break;
+	case 'e':
+		translatingY = !translatingY;
 		break;
 	case 'q':
 		exit(0);
@@ -512,16 +552,23 @@ GLvoid DrawCube(GLuint shaderProgramID)
 		model = glm::rotate(model, glm::radians(angleC_1), glm::vec3(0, 1, 0));
 	}
 
+	// 화면 회전 행렬 생성 (DrawAxis와 동일)
+	glm::mat4 viewRot = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0, 1, 0));
+	viewRot = glm::rotate(viewRot, glm::radians(-30.0f), glm::vec3(1, 0, 0));
+
+	glm::mat3 camRot = glm::mat3(glm::inverse(viewRot)); // 카메라→월드
+	glm::vec3 screenX = glm::normalize(camRot[0]);       // Right (첫 번째 열)
+	glm::vec3 screenY = glm::normalize(camRot[1]);       // Up    (두 번째 열)
+
+	model = glm::translate(model, screenX * moveX_1 + screenY * moveY_1);
+
 	glm::mat4 R = glm::mat4(1.0f);
 	R = glm::rotate(R, glm::radians(angleY_1), glm::vec3(0, 1, 0));
 	R = glm::rotate(R, glm::radians(angleX_1), glm::vec3(1, 0, 0)); // x축 회전
 
-	glm::vec3 movedir = glm::vec3(R * glm::vec4(1, 0, 0, 0));
-
 	model = glm::translate(model, center); // 위치
 	model = model * R;
 	model = glm::translate(model, -center); // 다시 원래 위치로 이동
-	model = glm::translate(model, movedir * moveX_1);
 
 	/*
 	// 회전 행렬 생성
@@ -580,15 +627,21 @@ GLvoid DrawCone(GLuint shaderProgramID)
 		M = glm::scale(M, glm::vec3(curScale, curScale, curScale)); // 스케일링
 		// M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
 	}
-	
+	// 화면 회전 행렬 생성 (DrawAxis와 동일)
+	glm::mat4 viewRot = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0, 1, 0));
+	viewRot = glm::rotate(viewRot, glm::radians(-30.0f), glm::vec3(1, 0, 0));
+
+	glm::mat3 camRot = glm::mat3(glm::inverse(viewRot)); // 카메라→월드
+	glm::vec3 screenX = glm::normalize(camRot[0]);       // Right (첫 번째 열)
+	glm::vec3 screenY = glm::normalize(camRot[1]);       // Up    (두 번째 열)
+
+	M = glm::translate(M, screenX * moveX_2 + screenY * moveY_2);
+
 	M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f)); // 위치
 	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));
 	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
 	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_2), glm::vec3(0, 1, 0));
 	rot = glm::rotate(rot, glm::radians(angleX_2), glm::vec3(1, 0, 0));
-
-	glm::vec3 movedir = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
-	M = glm::translate(M, movedir * moveX_2);
 
 	if (scaling && (objectMode == 0 || objectMode == 1)) // both
 		M = glm::scale(M, glm::vec3(curScale, curScale, curScale)); // 스케일링
