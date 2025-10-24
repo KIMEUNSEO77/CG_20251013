@@ -98,6 +98,11 @@ float dirMoveY_1 = +1;
 float dirMoveY_2 = -1;
 bool translatingY = false;
 
+bool posChange = false;
+glm::vec3 cubeCenter = { -0.375f, 0.125f, -0.125f };
+glm::vec3 coneCenter = { 0.35f, 0.0f, 0.0f };
+int posTime = 0;
+
 void InitAxis()
 {
 	glGenVertexArrays(1, &axisVAO);
@@ -333,7 +338,6 @@ void Timer(int value)
 		}
 		glutPostRedisplay();
 	}
-	glutTimerFunc(16, Timer, 0);
 
 	if (translatingY && (objectMode == -1 || objectMode == 0))
 	{
@@ -365,6 +369,23 @@ void Timer(int value)
 		}
 		glutPostRedisplay();
 	}
+	if (posChange)
+	{
+		posTime++;
+
+		if (posTime >= 20)
+		{
+			posTime = 0;
+			glm::vec3 temp = cubeCenter;
+			cubeCenter = coneCenter;
+			moveX_1 = coneCenter.x;
+			moveY_1 = coneCenter.y;
+			coneCenter = temp;
+		}
+
+		glutPostRedisplay();
+	}
+	glutTimerFunc(16, Timer, 0);
 }
 
 GLvoid Keyboard(unsigned char key, int x, int y)
@@ -424,6 +445,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'e':
 		translatingY = !translatingY;
+		break;
+	case 't':
+		posChange = !posChange;
 		break;
 	case 'q':
 		exit(0);
@@ -545,7 +569,8 @@ GLvoid DrawCube(GLuint shaderProgramID)
 
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
-	glm::vec3 center = glm::vec3(-0.375f, 0.125f, -0.125f);
+	// glm::vec3 center = glm::vec3(-0.375f, 0.125f, -0.125f);
+	glm::vec3 center = cubeCenter;
 
 	if (rotatingCenter)
 	{
@@ -637,7 +662,8 @@ GLvoid DrawCone(GLuint shaderProgramID)
 
 	M = glm::translate(M, screenX * moveX_2 + screenY * moveY_2);
 
-	M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f)); // 위치
+	//M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f)); // 위치
+	M = glm::translate(M, coneCenter);
 	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));
 	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
 	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_2), glm::vec3(0, 1, 0));
