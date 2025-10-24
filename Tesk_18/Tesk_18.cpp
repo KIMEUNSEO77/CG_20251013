@@ -367,10 +367,8 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		rotatingX = false;
 		break;
 	case 'r':
-		//rotatingCenter = !rotatingCenter;
-		//dirC = true;
-		rotatingY = !rotatingY;
-		dirY = true;
+		rotatingCenter = !rotatingCenter;
+		dirC = true;
 		break;
 	case 'R':
 		rotatingCenter = !rotatingCenter;
@@ -505,30 +503,39 @@ GLvoid DrawCube(GLuint shaderProgramID)
 {
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 
-	glm::vec3 center(0.0f, 0.125f, -0.125f);
-
 	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
+	glm::vec3 center = glm::vec3(-0.375f, 0.125f, -0.125f);
 
 	if (rotatingCenter)
 	{
 		model = glm::rotate(model, glm::radians(angleC_1), glm::vec3(0, 1, 0));
 	}
 
-	model = glm::translate(model, center); // 중심을 원점으로 이동
+	glm::mat4 R = glm::mat4(1.0f);
+	R = glm::rotate(R, glm::radians(angleY_1), glm::vec3(0, 1, 0));
+	R = glm::rotate(R, glm::radians(angleX_1), glm::vec3(1, 0, 0)); // x축 회전
 
-	// 회전 행렬 생성
-	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_1), glm::vec3(0, 1, 0));
-	rot = glm::rotate(rot, glm::radians(angleX_1), glm::vec3(1, 0, 0));
-	glm::vec3 movedir = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
-	// 회전 적용
-	model = rot;
+	glm::vec3 movedir = glm::vec3(R * glm::vec4(1, 0, 0, 0));
+
+	model = glm::translate(model, center); // 위치
+	model = model * R;
 	model = glm::translate(model, -center); // 다시 원래 위치로 이동
-
-	// 이동 적용
 	model = glm::translate(model, movedir * moveX_1);
 
+	/*
+	// 회전 행렬 생성
+	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_1), glm::vec3(0, 1, 0));
+	rot = glm::translate(rot, -center);
+	rot = glm::rotate(rot, glm::radians(angleX_1), glm::vec3(1, 0, 0));
+	glm::vec3 movedir = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
 
+	// 회전 적용
+	model = rot;	
+	rot = glm::translate(rot, center);
+
+	model = glm::translate(model, movedir * moveX_1);
+	*/
 
 	if (objectMode == 0 || objectMode == -1) // both
 	{
