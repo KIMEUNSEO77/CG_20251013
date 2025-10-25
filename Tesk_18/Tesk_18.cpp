@@ -103,6 +103,9 @@ glm::vec3 cubeCenter = { -0.375f, 0.125f, -0.125f };
 glm::vec3 coneCenter = { 0.35f, 0.0f, 0.0f };
 int posTime = 0;
 
+glm::vec3 cubeTarget = cubeCenter;
+glm::vec3 coneTarget = coneCenter;
+
 void InitAxis()
 {
 	glGenVertexArrays(1, &axisVAO);
@@ -371,17 +374,23 @@ void Timer(int value)
 	}
 	if (posChange)
 	{
-		posTime++;
-		int dir = (coneCenter.x > cubeCenter.x) ? 1 : -1;
+		float lerpSpeed = 0.08f;
+		int dir = (cubeTarget.x > cubeCenter.x) ? 1 : -1;
 
-		if (posTime >= 20)
+		// cubeCenter, coneCenter를 목표 위치로 점진적으로 이동
+		cubeCenter = glm::mix(cubeCenter, cubeTarget, lerpSpeed);
+		moveX_1 = glm::mix(moveX_1, cubeTarget.x, lerpSpeed * dir);
+		moveY_1 = glm::mix(moveY_1, cubeTarget.y, lerpSpeed * dir);
+		coneCenter = glm::mix(coneCenter, coneTarget, lerpSpeed);
+
+		// 충분히 가까워지면 타겟 변경
+		if (glm::length(cubeCenter - cubeTarget) < 0.001f &&
+			glm::length(coneCenter - coneTarget) < 0.001f)
 		{
-			posTime = 0;
-			glm::vec3 temp = cubeCenter;
-			cubeCenter = coneCenter;
-			moveX_1 = coneCenter.x + cubeCenter.x * dir;
-			moveY_1 = coneCenter.y + cubeCenter.y * dir;
-			coneCenter = temp;
+			cubeCenter = cubeTarget;
+			coneCenter = coneTarget;
+			cubeTarget = coneCenter;
+			coneTarget = cubeCenter;
 		}
 
 		glutPostRedisplay();
@@ -449,6 +458,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 	case 't':
 		posChange = !posChange;
+		glm::vec3 temp = cubeTarget;
+		cubeTarget = coneTarget;
+		coneTarget = temp;
 		break;
 	case 'q':
 		exit(0);
