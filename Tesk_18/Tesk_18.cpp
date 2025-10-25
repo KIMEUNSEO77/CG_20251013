@@ -375,22 +375,32 @@ void Timer(int value)
 	if (posChange)
 	{
 		float lerpSpeed = 0.08f;
-		int dir = (cubeTarget.x > cubeCenter.x) ? 1 : -1;
+		//int dir = (cubeTarget.x < coneTarget.x) ? 1 : -1;
 
-		// cubeCenter, coneCenter를 목표 위치로 점진적으로 이동
-		cubeCenter = glm::mix(cubeCenter, cubeTarget, lerpSpeed);
-		moveX_1 = glm::mix(moveX_1, cubeTarget.x, lerpSpeed * dir);
-		moveY_1 = glm::mix(moveY_1, cubeTarget.y, lerpSpeed * dir);
+		glm::vec3 cubeWorld = cubeCenter + glm::vec3(moveX_1, moveY_1, 0.0f);
+		cubeWorld = glm::mix(cubeWorld, cubeTarget, lerpSpeed);
+
 		coneCenter = glm::mix(coneCenter, coneTarget, lerpSpeed);
 
+		moveX_1 = cubeWorld.x - cubeCenter.x;
+		moveY_1 = cubeWorld.y - cubeCenter.y;
+
 		// 충분히 가까워지면 타겟 변경
-		if (glm::length(cubeCenter - cubeTarget) < 0.001f &&
-			glm::length(coneCenter - coneTarget) < 0.001f)
+		if (fabs(cubeWorld.x - cubeTarget.x) < 0.0005f &&
+			fabs(cubeWorld.y - cubeTarget.y) < 0.0005f &&
+			fabs(coneCenter.x - coneTarget.x) < 0.0005f &&
+			fabs(coneCenter.y - coneTarget.y) < 0.0005f)
 		{
 			cubeCenter = cubeTarget;
 			coneCenter = coneTarget;
-			cubeTarget = coneCenter;
-			coneTarget = cubeCenter;
+
+			moveX_1 = 0.0f;            // offset은 리셋
+			moveY_1 = 0.0f;
+
+			// 타겟 스왑
+			glm::vec3 temp = cubeTarget;
+			cubeTarget = coneTarget;
+			coneTarget = temp;
 		}
 
 		glutPostRedisplay();
