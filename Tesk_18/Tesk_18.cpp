@@ -375,7 +375,6 @@ void Timer(int value)
 	if (posChange)
 	{
 		float lerpSpeed = 0.08f;
-		//int dir = (cubeTarget.x < coneTarget.x) ? 1 : -1;
 
 		glm::vec3 cubeWorld = cubeCenter + glm::vec3(moveX_1, moveY_1, 0.0f);
 		cubeWorld = glm::mix(cubeWorld, cubeTarget, lerpSpeed);
@@ -384,18 +383,15 @@ void Timer(int value)
 
 		moveX_1 = cubeWorld.x - cubeCenter.x;
 		moveY_1 = cubeWorld.y - cubeCenter.y;
-
+		
 		// 충분히 가까워지면 타겟 변경
 		if (fabs(cubeWorld.x - cubeTarget.x) < 0.0005f &&
 			fabs(cubeWorld.y - cubeTarget.y) < 0.0005f &&
 			fabs(coneCenter.x - coneTarget.x) < 0.0005f &&
 			fabs(coneCenter.y - coneTarget.y) < 0.0005f)
 		{
-			cubeCenter = cubeTarget;
+			cubeWorld = cubeTarget;
 			coneCenter = coneTarget;
-
-			moveX_1 = 0.0f;            // offset은 리셋
-			moveY_1 = 0.0f;
 
 			// 타겟 스왑
 			glm::vec3 temp = cubeTarget;
