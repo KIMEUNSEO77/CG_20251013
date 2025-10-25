@@ -372,14 +372,15 @@ void Timer(int value)
 	if (posChange)
 	{
 		posTime++;
+		int dir = (coneCenter.x > cubeCenter.x) ? 1 : -1;
 
 		if (posTime >= 20)
 		{
 			posTime = 0;
 			glm::vec3 temp = cubeCenter;
 			cubeCenter = coneCenter;
-			moveX_1 = coneCenter.x;
-			moveY_1 = coneCenter.y;
+			moveX_1 = coneCenter.x + cubeCenter.x * dir;
+			moveY_1 = coneCenter.y + cubeCenter.y * dir;
 			coneCenter = temp;
 		}
 
