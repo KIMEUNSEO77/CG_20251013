@@ -81,8 +81,10 @@ float angleC_1 = 0.0f;
 float angleC_2 = 0.0f;
 bool dirC = true; // +1: 시계, -1: 반시계
 
-float curScale = 1.0f;
-int dirS = +1;           // +1: 증가, -1: 감소
+float curScale_1 = 1.0f;
+float curScale_2 = 1.0f;
+int dirS_1 = +1;           // +1: 증가, -1: 감소
+int dirS_2 = -1;           // +1: 증가, -1: 감소
 bool scaling = false;
 bool scalingCenter = false;
 
@@ -101,10 +103,12 @@ bool translatingY = false;
 bool posChange = false;
 glm::vec3 cubeCenter = { -0.375f, 0.125f, -0.125f };
 glm::vec3 coneCenter = { 0.35f, 0.0f, 0.0f };
-int posTime = 0;
 
 glm::vec3 cubeTarget = cubeCenter;
 glm::vec3 coneTarget = coneCenter;
+
+bool animationV1 = false;   // 사각형이 작아지며 자전, 원뿔이 커지며 공전
+bool animationV2 = false;   // 사각형이 커지며 공전, 원뿔이 작아지며 자전
 
 void InitAxis()
 {
@@ -198,6 +202,68 @@ char* filetobuf(const char* file)
 
 void Timer(int value)
 {
+	if (animationV1)
+	{
+		angleY_1 += 1.0f;
+		angleC_2 += 1.0f;
+
+		curScale_1 += dirS_1 * 0.01f;
+		if (curScale_1 >= 1.5f)
+		{
+			curScale_1 = 1.5f;
+			dirS_1 = -1;
+		}
+		else if (curScale_1 <= 0.2f)
+		{
+			curScale_1 = 0.2f;
+			dirS_1 = +1;
+		}
+
+		curScale_2 += dirS_2 * 0.01f;
+		if (curScale_2 >= 1.5f)
+		{
+			curScale_2 = 1.5f;
+			dirS_2 = -1;
+		}
+		else if (curScale_2 <= 0.2f)
+		{
+			curScale_2 = 0.2f;
+			dirS_2 = +1;
+		}
+		glutPostRedisplay();
+	}
+	
+	if (animationV2)
+	{
+		angleY_2 += 1.0f;
+		angleC_1 += 1.0f;
+
+		curScale_1 += dirS_1 * 0.01f;
+		if (curScale_1 >= 1.5f)
+		{
+			curScale_1 = 1.5f;
+			dirS_1 = -1;
+		}
+		else if (curScale_1 <= 0.2f)
+		{
+			curScale_1 = 0.2f;
+			dirS_1 = +1;
+		}
+
+		curScale_2 += dirS_2 * 0.01f;
+		if (curScale_2 >= 1.5f)
+		{
+			curScale_2 = 1.5f;
+			dirS_2 = -1;
+		}
+		else if (curScale_2 <= 0.2f)
+		{
+			curScale_2 = 0.2f;
+			dirS_2 = +1;
+		}
+		glutPostRedisplay();
+	}
+
 	if (rotatingX)
 	{
 		if (objectMode == -1) // left
@@ -281,32 +347,67 @@ void Timer(int value)
 	}
 	if (scaling)
 	{
-		curScale += dirS * 0.01f;
-
-		if (curScale >= 1.5f)
+		if (objectMode == -1 || objectMode == 0)
 		{
-			curScale = 1.5f;
-			dirS = -1;
+			curScale_1 += dirS_1 * 0.01f;
+			if (curScale_1 >= 1.5f)
+			{
+				curScale_1 = 1.5f;
+				dirS_1 = -1;
+			}
+			else if (curScale_1 <= 0.2f)
+			{
+				curScale_1 = 0.2f;
+				dirS_1 = +1;
+			}
 		}
-		else if (curScale <= 0.2f)
+		if (objectMode == 1 || objectMode == 0)
 		{
-			curScale = 0.2f;
-			dirS = +1;
+			curScale_2 += dirS_2 * 0.01f;
+			if (curScale_2 >= 1.5f)
+			{
+				curScale_2 = 1.5f;
+				dirS_2 = -1;
+			}
+			else if (curScale_2 <= 0.2f)
+			{
+				curScale_2 = 0.2f;
+				dirS_2 = +1;
+			}
 		}
 		glutPostRedisplay();
 	}
 	if (scalingCenter)
 	{
-		curScale += dirS * 0.01f;
-		if (curScale >= 1.5f)
+		if (objectMode == -1 || objectMode == 0)
 		{
-			curScale = 1.5f;
-			dirS = -1;
+			curScale_1 += dirS_1 * 0.01f;
+			if (curScale_1 >= 1.5f)
+			{
+				curScale_1 = 1.5f;
+				dirS_1 = -1;
+			}
+			else if (curScale_1 <= 0.2f)
+			{
+				curScale_1 = 0.2f;
+				dirS_1 = +1;
+			}
+			glutPostRedisplay();
 		}
-		else if (curScale <= 0.2f)
+		if (objectMode == 1 || objectMode == 0)
 		{
-			curScale = 0.2f;
-			dirS = +1;
+			curScale_2 += dirS_2 * 0.01f;
+			if (curScale_2 >= 1.5f)
+			{
+				curScale_2 = 1.5f;
+				dirS_2 = -1;
+			}
+			else if (curScale_2 <= 0.2f)
+			{
+				curScale_2 = 0.2f;
+				dirS_2 = +1;
+			}
+			glutPostRedisplay();
 		}
 		glutPostRedisplay();
 	}
@@ -379,19 +480,23 @@ void Timer(int value)
 		glm::vec3 cubeWorld = cubeCenter + glm::vec3(moveX_1, moveY_1, 0.0f);
 		cubeWorld = glm::mix(cubeWorld, cubeTarget, lerpSpeed);
 
-		coneCenter = glm::mix(coneCenter, coneTarget, lerpSpeed);
+		glm::vec3 coneWorld = coneCenter + glm::vec3(moveX_2, moveY_2, 0.0f);
+		coneWorld = glm::mix(coneWorld, coneTarget, lerpSpeed);
 
 		moveX_1 = cubeWorld.x - cubeCenter.x;
 		moveY_1 = cubeWorld.y - cubeCenter.y;
+
+		moveX_2 = coneWorld.x - coneCenter.x;
+		moveY_2 = coneWorld.y - coneCenter.y;
 		
 		// 충분히 가까워지면 타겟 변경
 		if (fabs(cubeWorld.x - cubeTarget.x) < 0.0005f &&
 			fabs(cubeWorld.y - cubeTarget.y) < 0.0005f &&
-			fabs(coneCenter.x - coneTarget.x) < 0.0005f &&
-			fabs(coneCenter.y - coneTarget.y) < 0.0005f)
+			fabs(coneWorld.x - coneTarget.x) < 0.0005f &&
+			fabs(coneWorld.y - coneTarget.y) < 0.0005f)
 		{
 			cubeWorld = cubeTarget;
-			coneCenter = coneTarget;
+			coneWorld = coneTarget;
 
 			// 타겟 스왑
 			glm::vec3 temp = cubeTarget;
@@ -402,6 +507,55 @@ void Timer(int value)
 		glutPostRedisplay();
 	}
 	glutTimerFunc(16, Timer, 0);
+}
+
+void Reset()
+{
+	 objectMode = -1;   // -1: left, 0: 둘 다, 1: right
+	 rotatingX = false;
+	 dirX = true; // +1: 시계, -1: 반시계
+	 angleX_1 = -30.0f;
+	 angleX_2 = -30.0f;
+	 rotatingY = false;
+	 dirY = true; // +1: 시계, -1: 반시계
+	 angleY_1 = 30.0f;
+	 angleY_2 = 30.0f;
+
+	 rotatingCenter = false;  // 중앙 y축 기준 회전
+	 angleC_1 = 0.0f;
+	 angleC_2 = 0.0f;
+	 dirC = true; // +1: 시계, -1: 반시계
+
+	 curScale_1 = 1.0f;
+	 curScale_2 = 1.0f;
+	 dirS_1 = +1;           // +1: 증가, -1: 감소
+	 dirS_2 = -1;           // +1: 증가, -1: 감소
+	 scaling = false;
+	 scalingCenter = false;
+
+	 moveX_1 = 0.0f;
+	 moveX_2 = 0.0f;
+	 dirMoveX_1 = +1;
+	 dirMoveX_2 = -1;
+	 translatingX = false;
+
+	moveY_1 = 0.0f;
+	moveY_2 = 0.0f;
+	dirMoveY_1 = +1;
+	dirMoveY_2 = -1;
+	translatingY = false;
+
+	posChange = false;
+	cubeCenter = { -0.375f, 0.125f, -0.125f };
+	coneCenter = { 0.35f, 0.0f, 0.0f };
+
+	cubeTarget = cubeCenter;
+	coneTarget = coneCenter;
+
+	animationV1 = false;  
+	animationV2 = false;   
+
+	glutPostRedisplay();
 }
 
 GLvoid Keyboard(unsigned char key, int x, int y)
@@ -467,6 +621,21 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		glm::vec3 temp = cubeTarget;
 		cubeTarget = coneTarget;
 		coneTarget = temp;
+		break;
+	case 'v':
+		animationV1 = !animationV1;
+		dirS_1 = +1;
+		dirS_2 = -1;
+		animationV2 = false;
+		break;
+	case 'V':
+		animationV2 = !animationV2;
+		dirS_1 = -1;
+		dirS_2 = +1;
+		animationV1 = false;
+		break;
+	case 's':
+		Reset();
 		break;
 	case 'q':
 		exit(0);
@@ -591,7 +760,7 @@ GLvoid DrawCube(GLuint shaderProgramID)
 	// glm::vec3 center = glm::vec3(-0.375f, 0.125f, -0.125f);
 	glm::vec3 center = cubeCenter;
 
-	if (rotatingCenter)
+	if (rotatingCenter || animationV2)
 	{
 		model = glm::rotate(model, glm::radians(angleC_1), glm::vec3(0, 1, 0));
 	}
@@ -628,19 +797,18 @@ GLvoid DrawCube(GLuint shaderProgramID)
 	model = glm::translate(model, movedir * moveX_1);
 	*/
 
-	if (objectMode == 0 || objectMode == -1) // both
-	{
+
 		if (!scalingCenter)
 		{
 			model = glm::translate(model, center); // 위치
-			model = glm::scale(model, glm::vec3(curScale, curScale, curScale)); // 스케일링
+			model = glm::scale(model, glm::vec3(curScale_1, curScale_1, curScale_1)); // 스케일링
 			model = glm::translate(model, -center); // 다시 원래 위치로 이동
 		}
 		else
 			{
-			model = glm::scale(model, glm::vec3(curScale, curScale, curScale)); // 스케일링
+			model = glm::scale(model, glm::vec3(curScale_1, curScale_1, curScale_1)); // 스케일링
 		}
-	}
+	
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 	// 각 면별로 그리기
@@ -661,15 +829,13 @@ GLvoid DrawCone(GLuint shaderProgramID)
 	// --- 모델 행렬 구성 (위치 + 회전) ---
 	glm::mat4 M(1.0f);
 
-	if (rotatingCenter)
+	if (rotatingCenter || animationV1)
 	{
 		M = glm::rotate(M, glm::radians(angleC_2), glm::vec3(0, 1, 0));
-		// M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
 	}
 	if (scalingCenter && (objectMode == 0 || objectMode == 1))
 	{
-		M = glm::scale(M, glm::vec3(curScale, curScale, curScale)); // 스케일링
-		// M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f));
+		M = glm::scale(M, glm::vec3(curScale_2, curScale_2, curScale_2)); // 스케일링
 	}
 	// 화면 회전 행렬 생성 (DrawAxis와 동일)
 	glm::mat4 viewRot = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0, 1, 0));
@@ -681,15 +847,13 @@ GLvoid DrawCone(GLuint shaderProgramID)
 
 	M = glm::translate(M, screenX * moveX_2 + screenY * moveY_2);
 
-	//M = glm::translate(M, glm::vec3(0.35f, 0.0f, 0.0f)); // 위치
 	M = glm::translate(M, coneCenter);
 	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));
 	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
 	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_2), glm::vec3(0, 1, 0));
 	rot = glm::rotate(rot, glm::radians(angleX_2), glm::vec3(1, 0, 0));
 
-	if (scaling && (objectMode == 0 || objectMode == 1)) // both
-		M = glm::scale(M, glm::vec3(curScale, curScale, curScale)); // 스케일링
+	M = glm::scale(M, glm::vec3(curScale_2, curScale_2, curScale_2)); // 스케일링
 
 	// --- 셰이더에 uModel 전달 ---
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
