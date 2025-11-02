@@ -489,7 +489,7 @@ void Timer(int value)
 		moveX_2 = coneWorld.x - coneCenter.x;
 		moveY_2 = coneWorld.y - coneCenter.y;
 		
-		// 충분히 가까워지면 타겟 변경
+		// 가까워지면 타겟 변경
 		if (fabs(cubeWorld.x - cubeTarget.x) < 0.0005f &&
 			fabs(cubeWorld.y - cubeTarget.y) < 0.0005f &&
 			fabs(coneWorld.x - coneTarget.x) < 0.0005f &&
@@ -755,9 +755,7 @@ GLvoid DrawCube(GLuint shaderProgramID)
 {
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 
-	// 모델 변환 적용 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
-	// glm::vec3 center = glm::vec3(-0.375f, 0.125f, -0.125f);
 	glm::vec3 center = cubeCenter;
 
 	if (rotatingCenter || animationV2)
@@ -765,49 +763,33 @@ GLvoid DrawCube(GLuint shaderProgramID)
 		model = glm::rotate(model, glm::radians(angleC_1), glm::vec3(0, 1, 0));
 	}
 
-	// 화면 회전 행렬 생성 (DrawAxis와 동일)
 	glm::mat4 viewRot = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0, 1, 0));
 	viewRot = glm::rotate(viewRot, glm::radians(-30.0f), glm::vec3(1, 0, 0));
 
-	glm::mat3 camRot = glm::mat3(glm::inverse(viewRot)); // 카메라→월드
-	glm::vec3 screenX = glm::normalize(camRot[0]);       // Right (첫 번째 열)
-	glm::vec3 screenY = glm::normalize(camRot[1]);       // Up    (두 번째 열)
+	glm::mat3 camRot = glm::mat3(glm::inverse(viewRot));  // 카메라 회전 행렬의 역행렬
+	glm::vec3 screenX = glm::normalize(camRot[0]);        // 카메라 기준 x축을 월드 좌표계로 변환 
+	glm::vec3 screenY = glm::normalize(camRot[1]);        // 카메라 기준 y축을 월드 좌표계로 변환
 
-	model = glm::translate(model, screenX * moveX_1 + screenY * moveY_1);
+	model = glm::translate(model, screenX * moveX_1 + screenY * moveY_1);  // 그려진 좌표축 기준 움직이기 위해
 
 	glm::mat4 R = glm::mat4(1.0f);
 	R = glm::rotate(R, glm::radians(angleY_1), glm::vec3(0, 1, 0));
-	R = glm::rotate(R, glm::radians(angleX_1), glm::vec3(1, 0, 0)); // x축 회전
+	R = glm::rotate(R, glm::radians(angleX_1), glm::vec3(1, 0, 0)); 
 
-	model = glm::translate(model, center); // 위치
+	model = glm::translate(model, center);
 	model = model * R;
-	model = glm::translate(model, -center); // 다시 원래 위치로 이동
+	model = glm::translate(model, -center); 
 
-	/*
-	// 회전 행렬 생성
-	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_1), glm::vec3(0, 1, 0));
-	rot = glm::translate(rot, -center);
-	rot = glm::rotate(rot, glm::radians(angleX_1), glm::vec3(1, 0, 0));
-	glm::vec3 movedir = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
-
-	// 회전 적용
-	model = rot;	
-	rot = glm::translate(rot, center);
-
-	model = glm::translate(model, movedir * moveX_1);
-	*/
-
-
-		if (!scalingCenter)
+	if (!scalingCenter)
+	{
+		model = glm::translate(model, center);
+		model = glm::scale(model, glm::vec3(curScale_1, curScale_1, curScale_1));
+		model = glm::translate(model, -center); 
+	}
+	else
 		{
-			model = glm::translate(model, center); // 위치
-			model = glm::scale(model, glm::vec3(curScale_1, curScale_1, curScale_1)); // 스케일링
-			model = glm::translate(model, -center); // 다시 원래 위치로 이동
-		}
-		else
-			{
-			model = glm::scale(model, glm::vec3(curScale_1, curScale_1, curScale_1)); // 스케일링
-		}
+		model = glm::scale(model, glm::vec3(curScale_1, curScale_1, curScale_1)); 
+	}
 	
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
@@ -824,9 +806,8 @@ GLvoid DrawCube(GLuint shaderProgramID)
 
 GLvoid DrawCone(GLuint shaderProgramID)
 {
-	if (!gQuadric) return;  // 안전 장치
+	if (!gQuadric) return; 
 
-	// --- 모델 행렬 구성 (위치 + 회전) ---
 	glm::mat4 M(1.0f);
 
 	if (rotatingCenter || animationV1)
@@ -835,41 +816,33 @@ GLvoid DrawCone(GLuint shaderProgramID)
 	}
 	if (scalingCenter && (objectMode == 0 || objectMode == 1))
 	{
-		M = glm::scale(M, glm::vec3(curScale_2, curScale_2, curScale_2)); // 스케일링
+		M = glm::scale(M, glm::vec3(curScale_2, curScale_2, curScale_2)); 
 	}
-	// 화면 회전 행렬 생성 (DrawAxis와 동일)
+
 	glm::mat4 viewRot = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0, 1, 0));
 	viewRot = glm::rotate(viewRot, glm::radians(-30.0f), glm::vec3(1, 0, 0));
 
-	glm::mat3 camRot = glm::mat3(glm::inverse(viewRot)); // 카메라→월드
-	glm::vec3 screenX = glm::normalize(camRot[0]);       // Right (첫 번째 열)
-	glm::vec3 screenY = glm::normalize(camRot[1]);       // Up    (두 번째 열)
+	glm::mat3 camRot = glm::mat3(glm::inverse(viewRot)); 
+	glm::vec3 screenX = glm::normalize(camRot[0]);       
+	glm::vec3 screenY = glm::normalize(camRot[1]);      
 
 	M = glm::translate(M, screenX * moveX_2 + screenY * moveY_2);
 
 	M = glm::translate(M, coneCenter);
 	M = glm::rotate(M, glm::radians(angleY_2), glm::vec3(0, 1, 0));
-	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0)); // x축 회전
-	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY_2), glm::vec3(0, 1, 0));
-	rot = glm::rotate(rot, glm::radians(angleX_2), glm::vec3(1, 0, 0));
+	M = glm::rotate(M, glm::radians(angleX_2), glm::vec3(1, 0, 0));
 
-	M = glm::scale(M, glm::vec3(curScale_2, curScale_2, curScale_2)); // 스케일링
+	M = glm::scale(M, glm::vec3(curScale_2, curScale_2, curScale_2));
 
-	// --- 셰이더에 uModel 전달 ---
 	GLint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &M[0][0]);
 
-	// --- 원뿔 그리기 ---
-	// baseRadius=0.18, topRadius=0 → 원뿔
 	gluCylinder(gQuadric,
-		(GLdouble)0.1,  // 밑면 반지름
-		0.0,             // 윗면 반지름 (0이면 원뿔)
-		(GLdouble)0.3,  // 높이
+		(GLdouble)0.1,   // 밑면 반지름
+		0.0,             // 윗면 반지름
+		(GLdouble)0.3,   // 높이
 		(GLint)20,       // 둘레 분할
 		(GLint)8);       // 세로 분할
-
-	// --- 바닥 막기 (옵션) ---
-	//gluDisk(gQuadric, 0.0, (GLdouble)0.18, (GLint)48, 1);
 }
 
 GLvoid drawScene()

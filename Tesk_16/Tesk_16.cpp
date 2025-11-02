@@ -275,23 +275,23 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 'x':
-		rotatingX = true;
+		rotatingX = !rotatingX;
 		directionX = true;
 		rotatingY = false;
 		break;
 	case 'X':
-		rotatingX = true;
+		rotatingX = !rotatingX;
 		directionX = false;
 		rotatingY = false;
 		break;
 	case 'y':
 		rotatingX = false;
-		rotatingY = true;
+		rotatingY = !rotatingY;
 		directionY = true;
 		break;
 	case 'Y':
 		rotatingX = false;
-		rotatingY = true;
+		rotatingY = !rotatingY;
 		directionY = false;
 		break;
 	case 's':
@@ -442,21 +442,23 @@ GLvoid drawScene()
 
 	glUseProgram(shaderProgramID);
 
+	glm::mat4 viewRot = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0, 1, 0));
+	viewRot = glm::rotate(viewRot, glm::radians(-30.0f), glm::vec3(1, 0, 0));
+
+	glm::mat3 camRot = glm::mat3(glm::inverse(viewRot));  // 카메라 회전 행렬의 역행렬
+	glm::vec3 screenX = glm::normalize(camRot[0]);        // 카메라 기준 x축을 월드 좌표계로 변환 
+	glm::vec3 screenY = glm::normalize(camRot[1]);        // 카메라 기준 y축을 월드 좌표계로 변환
+
 	// 모델 변환 (30도씩 회전)
 	glm::mat4 model = glm::mat4(1.0f);
 	
 	glm::vec3 center = glm::vec3(0.0f, 0.15f, 0.0f);
 
 	model = glm::translate(model, center);
-	// 회전 행렬 생성
-	glm::mat4 rot = glm::rotate(glm::mat4(1.0f), glm::radians(angleY), glm::vec3(0, 1, 0));
-	rot = glm::rotate(rot, glm::radians(angleX), glm::vec3(1, 0, 0));
-	glm::vec3 movedir = glm::vec3(rot * glm::vec4(1, 0, 0, 0));
+	model = glm::translate(model, screenX * moveX + screenY * moveY);
+	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
+	model = glm::rotate(model, glm::radians(angleX), glm::vec3(1, 0, 0)); // x축 회전
 
-	// 회전 적용
-	model = rot;
-	// 이동 적용
-	model = glm::translate(model, glm::vec3(moveX, moveY, 0));
 	model = glm::translate(model, -center);
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
