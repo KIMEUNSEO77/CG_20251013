@@ -232,25 +232,13 @@ char* filetobuf(const char* file)
 	fclose(fptr);
 	buf[length] = 0;
 	return buf;
-	// Open file for reading 
-	// Return NULL on failure 
-	// Seek to the end of the file 
-	// Find out how many bytes into the file we are 
-	// Allocate a buffer for the entire length of the file and a null terminator 
-	// Go back to the beginning of the file 
-	// Read the contents of the file in to the buffer 
-	// Close the file 
-	// Null terminator 
-	// Return the buffer 
 }
 
 void Timer(int value)
 {
 	if (rotatingY)
 	{
-		if (directionY) angleY += 1.0f;  // 회전 속도
-		else angleY -= 1.0f;
-		glutPostRedisplay();
+		if (directionY) angleY += 1.0f;  else angleY -= 1.0f; glutPostRedisplay();
 	}
 	if (frontAnimation)
 	{
@@ -258,70 +246,37 @@ void Timer(int value)
 
 		if (frontAngle >= 90.0f) 
 		{
-			frontAngle = 90.0f;   // ★ 경계에서 고정
-			dir = -1;             // ★ 방향 반전
+			frontAngle = 90.0f;   // 경계에서 고정
+			dir = -1;             // 방향 반전
 		}
 		else if (frontAngle <= 0.0f) 
 		{
-			frontAngle = 0.0f;    // ★ 경계에서 고정
-			dir = +1;             // ★ 방향 반전
+			frontAngle = 0.0f;    // 경계에서 고정
+			dir = +1;             // 방향 반전
 		}
 		glutPostRedisplay();
 	}
-	if (topAnimation)
-	{
-		topAngle += 2.0f;
-		glutPostRedisplay();
-	}
-	if (sideAnimation)
-	{
-		sideAngle += 2.0f;
-		glutPostRedisplay();
-	}
+	if (topAnimation) { topAngle += 2.0f; glutPostRedisplay(); }
+	if (sideAnimation) { sideAngle += 2.0f; glutPostRedisplay(); }
 	if (backAnimation)
 	{
 		backScale += backDir * 0.01f;
-		if (backScale >= 1.0f)
-		{
-			backScale = 1.0;
-			backDir = -1;
-		}
-		else if (backScale <= 0.2f)
-		{
-			backScale = 0.2f;
-			backDir = +1;
-		}
+		if (backScale >= 1.0f) { backScale = 1.0; backDir = -1; }
+		if (backScale <= 0.2f) { backScale = 0.2f; backDir = +1; }
 		glutPostRedisplay();
 	}
 	if (pyramidAnimation)
 	{
 		pyramidAngle += 2.0f * dirP;
-		if (pyramidAngle >= 235.0f)
-		{
-			pyramidAngle = 235.0f;
-			dirP = -1;
-		}
-		else if (pyramidAngle <= 0.0f)
-		{
-			pyramidAngle = 0.0f;
-			dirP = 1;
-		}
+		if (pyramidAngle >= 235.0f) { pyramidAngle = 235.0f; dirP = -1; }
+		if (pyramidAngle <= 0.0f) { pyramidAngle = 0.0f; dirP = 1; }
 		glutPostRedisplay();
 	}
 	if (pyramidAnimation2)
 	{
 		currentAngle += 2.0f * dirP2;
-		if (currentAngle >= 120.0f)
-		{
-			currentAngle = 120.0f;
-			dirP2 = -1;
-		}
-		else if (currentAngle <= 0.0f)
-		{
-			currentAngle = 0.0f;
-			dirP2 = 1;
-			currentIdx = (currentIdx + 1) % 4 + 2;
-		}
+		if (currentAngle >= 120.0f) { currentAngle = 120.0f; dirP2 = -1; }
+		if (currentAngle <= 0.0f) { currentAngle = 0.0f; dirP2 = 1; currentIdx = (currentIdx + 1) % 4 + 2; }
 	}
 	glutTimerFunc(16, Timer, 0);
 	glutPostRedisplay();
@@ -353,9 +308,7 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 'p':
-		cubeMode = !cubeMode;
-		glutPostRedisplay();
-		break;
+		cubeMode = !cubeMode; glutPostRedisplay(); break;
 	case 'h':
 		cullMode = !cullMode;
 		if (cullMode) glEnable(GL_CULL_FACE);
@@ -380,35 +333,23 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		break;
 		*/
 	case 'y':
-		rotatingY = !rotatingY;
-		directionY = true;
-		break;
+		rotatingY = !rotatingY; directionY = true; break;
 	case 'c':
-		Reset();
-		break;
+		Reset(); break;
 	case 'f':
-		if (cubeMode) frontAnimation = !frontAnimation;
-		break;
+		if (cubeMode) frontAnimation = !frontAnimation; break;
 	case 't':
-		if (cubeMode) topAnimation = !topAnimation;
-		break;
+		if (cubeMode) topAnimation = !topAnimation; break;
 	case 's':
-		if (cubeMode) sideAnimation = !sideAnimation;
-		break;
+		if (cubeMode) sideAnimation = !sideAnimation; break;
 	case 'b':
-		if (cubeMode) backAnimation = !backAnimation;
-		break;
+		if (cubeMode) backAnimation = !backAnimation; break;
 	case 'o':
 		if (!cubeMode) pyramidAnimation = !pyramidAnimation;
-		pyramidAnimation2 = false;
-		break;
+		pyramidAnimation2 = false; break;
 	case 'r':
-		if (!cubeMode) pyramidAnimation2 = !pyramidAnimation2;
-		pyramidAnimation = false;
-		break;
-	case 'q':
-		exit(0);
-		break;
+		if (!cubeMode) pyramidAnimation2 = !pyramidAnimation2; pyramidAnimation = false; break;
+	case 'q': exit(0); break;
 	}
 }
 
@@ -432,8 +373,6 @@ void main(int argc, char** argv)
 	InitPyramid();   // 삼각뿔 초기화
 
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
-	//glEnable(GL_CULL_FACE); // 면 제거
-	//glDepthFunc(GL_ALWAYS);   // 항상 통과
 
 	glutTimerFunc(0, Timer, 0); // 타이머 콜백 등록
 
@@ -514,7 +453,7 @@ GLvoid drawScene()
 
 	GLuint modelLoc = glGetUniformLocation(shaderProgramID, "uModel");
 
-	// 2. 좌표축 그릴 때: 단위행렬(변환 없음) 적용
+	// 좌표축 그릴 때: 단위행렬(변환 없음) 적용
 	glm::mat4 axisModel = glm::mat4(1.0f);
 	axisModel = glm::rotate(axisModel, glm::radians(-30.0f), glm::vec3(1, 0, 0));
 	axisModel = glm::rotate(axisModel, glm::radians(30.0f), glm::vec3(0, 1, 0));
@@ -528,18 +467,15 @@ GLvoid drawScene()
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::vec3 center(0.125f, 0.125f, -0.125f);
 
-	if (cubeMode)
-		model = glm::translate(model, center);
+	if (cubeMode) model = glm::translate(model, center);
 
 	model = glm::rotate(model, glm::radians(-30.0f), glm::vec3(1, 0, 0));
 	model = glm::rotate(model, glm::radians(angleY), glm::vec3(0, 1, 0));
-	if (cubeMode)
-		model = glm::translate(model, -center);
+	if (cubeMode) model = glm::translate(model, -center);
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
 
-	int front = 4;
-	int top = 1;
+	int front = 4; int top = 1;
 	if (cubeMode)
 	{
 		// 각 면별로 그리기
@@ -553,7 +489,7 @@ GLvoid drawScene()
 				glm::vec3 p0 = { cube[4][0], cube[4][1], cube[4][2] };  
 				glm::vec3 p1 = { cube[5][0], cube[5][1], cube[5][2] };  
 				glm::vec3 axis = glm::normalize(p0 - p1);             
-				glm::vec3 pivot = p0;                                     // v4
+				glm::vec3 pivot = p0;                                  
 
 				// 피벗 기준 회전
 				M = glm::translate(M, pivot);
@@ -570,7 +506,6 @@ GLvoid drawScene()
 			}
 			if (i == 3)
 			{
-				// 회전축 설정
 				glm::vec3 p0 = { cube[3][0], cube[3][1], cube[3][2] };  
 				glm::vec3 p1 = { cube[4][0], cube[4][1], cube[4][2] };   
 				glm::vec3 axis = glm::normalize(p0 - p1);               
@@ -580,10 +515,8 @@ GLvoid drawScene()
 				M = glm::rotate(M, glm::radians(sideAngle), glm::vec3(1, 0, 0));
 				M = glm::translate(M, -pivot);
 			}
-
 			if (i == 2)
 			{
-				// 회전축 설정
 				glm::vec3 p0 = { cube[2][0], cube[2][1], cube[2][2] };   
 				glm::vec3 p1 = { cube[5][0], cube[5][1], cube[5][2] };  
 				glm::vec3 axis = glm::normalize(p0 - p1);               
@@ -604,7 +537,7 @@ GLvoid drawScene()
 				// 면 중심
 				glm::vec3 pivot = (p3 + p2 + p6 + p7) * 0.25f;
 
-				// 피벗 기준으로 스케일
+				// 피벗 기준 스케일
 				M = glm::translate(M, pivot);
 				M = glm::scale(M, glm::vec3(backScale, backScale, backScale));
 				M = glm::translate(M, -pivot);

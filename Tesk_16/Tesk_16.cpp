@@ -207,16 +207,6 @@ char* filetobuf(const char* file)
 	fclose(fptr);
 	buf[length] = 0;
 	return buf;
-	// Open file for reading 
-	// Return NULL on failure 
-	// Seek to the end of the file 
-	// Find out how many bytes into the file we are 
-	// Allocate a buffer for the entire length of the file and a null terminator 
-	// Go back to the beginning of the file 
-	// Read the contents of the file in to the buffer 
-	// Close the file 
-	// Null terminator 
-	// Return the buffer 
 }
 
 void Reset()
@@ -295,8 +285,7 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		directionY = false;
 		break;
 	case 's':
-		Reset();
-		break;
+		Reset(); break;
 		// 뒷면제거 적용, 해제
 	case 'u':
 		backfaceCulling = !backfaceCulling;
@@ -310,11 +299,9 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 			glDisable(GL_CULL_FACE);
 			glCullFace(GL_BACK); 
 		}
-		glutPostRedisplay();
-		break;
+		glutPostRedisplay(); break;
 	case 'q':
-		exit(0);
-		break;
+		exit(0); break;
 	}
 }
 
@@ -326,17 +313,13 @@ void SpecialKeys(int key, int x, int y)
 	switch (key)
 	{
 	case GLUT_KEY_LEFT:
-		moveX -= step;
-		break;
+		moveX -= step; break;
 	case GLUT_KEY_RIGHT:
-		moveX += step;
-		break;
+		moveX += step; break;
 	case GLUT_KEY_UP:
-		moveY += step;
-		break;
+		moveY += step; break;
 	case GLUT_KEY_DOWN:
-		moveY -= step;
-		break;
+		moveY -= step; break;
 	}
 	glutPostRedisplay();
 }
@@ -361,8 +344,6 @@ void main(int argc, char** argv)
 	InitPyramid();   // 삼각뿔 초기화
 
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
-	//glEnable(GL_CULL_FACE); // 면 제거
-	//glDepthFunc(GL_ALWAYS);   // 항상 통과
 
 	glutTimerFunc(0, Timer, 0); // 타이머 콜백 등록
 
@@ -466,7 +447,6 @@ GLvoid drawScene()
 
 	if (cubeMode)
 	{
-		// 각 면별로 그리기
 		for (int i = 0; i < 6; ++i)
 		{
 			glBindVertexArray(cubeVAO[i]);
@@ -477,7 +457,6 @@ GLvoid drawScene()
 
 	else if (pyramidMode)
 	{
-		// 삼각뿔 각 면 그리기
 		for (int i = 0; i < 6; ++i)
 		{
 			glBindVertexArray(pyramidVAO[i]);

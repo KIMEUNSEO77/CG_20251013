@@ -188,79 +188,35 @@ char* filetobuf(const char* file)
 	fclose(fptr);
 	buf[length] = 0;
 	return buf;
-	// Open file for reading 
-	// Return NULL on failure 
-	// Seek to the end of the file 
-	// Find out how many bytes into the file we are 
-	// Allocate a buffer for the entire length of the file and a null terminator 
-	// Go back to the beginning of the file 
-	// Read the contents of the file in to the buffer 
-	// Close the file 
-	// Null terminator 
-	// Return the buffer 
 }
 
 void Timer(int value)
 {
 	if (animationV1)
 	{
-		angleY_1 += 1.0f;
-		angleC_2 += 1.0f;
+		angleY_1 += 1.0f; angleC_2 += 1.0f;
 
 		curScale_1 += dirS_1 * 0.01f;
-		if (curScale_1 >= 1.5f)
-		{
-			curScale_1 = 1.5f;
-			dirS_1 = -1;
-		}
-		else if (curScale_1 <= 0.2f)
-		{
-			curScale_1 = 0.2f;
-			dirS_1 = +1;
-		}
+		if (curScale_1 >= 1.5f) { curScale_1 = 1.5f; dirS_1 = -1; }
+		else if (curScale_1 <= 0.2f) { curScale_1 = 0.2f; dirS_1 = +1; }
 
 		curScale_2 += dirS_2 * 0.01f;
-		if (curScale_2 >= 1.5f)
-		{
-			curScale_2 = 1.5f;
-			dirS_2 = -1;
-		}
-		else if (curScale_2 <= 0.2f)
-		{
-			curScale_2 = 0.2f;
-			dirS_2 = +1;
-		}
+		if (curScale_2 >= 1.5f) { curScale_2 = 1.5f; dirS_2 = -1; }
+		else if (curScale_2 <= 0.2f) { curScale_2 = 0.2f; dirS_2 = +1; }
 		glutPostRedisplay();
 	}
 	
 	if (animationV2)
 	{
-		angleY_2 += 1.0f;
-		angleC_1 += 1.0f;
+		angleY_2 += 1.0f; angleC_1 += 1.0f;
 
 		curScale_1 += dirS_1 * 0.01f;
-		if (curScale_1 >= 1.5f)
-		{
-			curScale_1 = 1.5f;
-			dirS_1 = -1;
-		}
-		else if (curScale_1 <= 0.2f)
-		{
-			curScale_1 = 0.2f;
-			dirS_1 = +1;
-		}
+		if (curScale_1 >= 1.5f) { curScale_1 = 1.5f; dirS_1 = -1; }
+		else if (curScale_1 <= 0.2f){ curScale_1 = 0.2f; dirS_1 = +1; }
 
 		curScale_2 += dirS_2 * 0.01f;
-		if (curScale_2 >= 1.5f)
-		{
-			curScale_2 = 1.5f;
-			dirS_2 = -1;
-		}
-		else if (curScale_2 <= 0.2f)
-		{
-			curScale_2 = 0.2f;
-			dirS_2 = +1;
-		}
+		if (curScale_2 >= 1.5f) { curScale_2 = 1.5f; dirS_2 = -1; }
+		else if (curScale_2 <= 0.2f) { curScale_2 = 0.2f; dirS_2 = +1;}
 		glutPostRedisplay();
 	}
 
@@ -280,13 +236,11 @@ void Timer(int value)
 		{
 			if (dirX)
 			{
-				angleX_1 += 1.0f;  // 회전 속도
-				angleX_2 += 1.0f;
+				angleX_1 += 1.0f; angleX_2 += 1.0f;
 			}
 			else
 			{
-				angleX_1 -= 1.0f;
-				angleX_2 -= 1.0f;
+				angleX_1 -= 1.0f; angleX_2 -= 1.0f;
 			}
 		}
 		glutPostRedisplay();
@@ -307,13 +261,11 @@ void Timer(int value)
 		{
 			if (dirY)
 			{
-				angleY_1 += 1.0f;  // 회전 속도
-				angleY_2 += 1.0f;
+				angleY_1 += 1.0f; angleY_2 += 1.0f;
 			}
 			else
 			{
-				angleY_1 -= 1.0f;
-				angleY_2 -= 1.0f;
+				angleY_1 -= 1.0f; angleY_2 -= 1.0f;
 			}
 		}
 		glutPostRedisplay();
@@ -334,13 +286,11 @@ void Timer(int value)
 		{
 			if (dirC)
 			{
-				angleC_1 += 1.0f;  // 회전 속도
-				angleC_2 += 1.0f;
+				angleC_1 += 1.0f;  angleC_2 += 1.0f;
 			}
 			else
 			{
-				angleC_1 -= 1.0f;
-				angleC_2 -= 1.0f;
+				angleC_1 -= 1.0f; angleC_2 -= 1.0f;
 			}
 		}
 		glutPostRedisplay();
@@ -352,13 +302,11 @@ void Timer(int value)
 			curScale_1 += dirS_1 * 0.01f;
 			if (curScale_1 >= 1.5f)
 			{
-				curScale_1 = 1.5f;
-				dirS_1 = -1;
+				curScale_1 = 1.5f; dirS_1 = -1;
 			}
 			else if (curScale_1 <= 0.2f)
 			{
-				curScale_1 = 0.2f;
-				dirS_1 = +1;
+				curScale_1 = 0.2f; dirS_1 = +1;
 			}
 		}
 		if (objectMode == 1 || objectMode == 0)
@@ -366,13 +314,11 @@ void Timer(int value)
 			curScale_2 += dirS_2 * 0.01f;
 			if (curScale_2 >= 1.5f)
 			{
-				curScale_2 = 1.5f;
-				dirS_2 = -1;
+				curScale_2 = 1.5f; dirS_2 = -1;
 			}
 			else if (curScale_2 <= 0.2f)
 			{
-				curScale_2 = 0.2f;
-				dirS_2 = +1;
+				curScale_2 = 0.2f; dirS_2 = +1;
 			}
 		}
 		glutPostRedisplay();
@@ -384,13 +330,11 @@ void Timer(int value)
 			curScale_1 += dirS_1 * 0.01f;
 			if (curScale_1 >= 1.5f)
 			{
-				curScale_1 = 1.5f;
-				dirS_1 = -1;
+				curScale_1 = 1.5f; dirS_1 = -1;
 			}
 			else if (curScale_1 <= 0.2f)
 			{
-				curScale_1 = 0.2f;
-				dirS_1 = +1;
+				curScale_1 = 0.2f; dirS_1 = +1;
 			}
 			glutPostRedisplay();
 		}
@@ -399,13 +343,11 @@ void Timer(int value)
 			curScale_2 += dirS_2 * 0.01f;
 			if (curScale_2 >= 1.5f)
 			{
-				curScale_2 = 1.5f;
-				dirS_2 = -1;
+				curScale_2 = 1.5f; dirS_2 = -1;
 			}
 			else if (curScale_2 <= 0.2f)
 			{
-				curScale_2 = 0.2f;
-				dirS_2 = +1;
+				curScale_2 = 0.2f; dirS_2 = +1;
 			}
 			glutPostRedisplay();
 		}
@@ -417,13 +359,11 @@ void Timer(int value)
 
 		if (moveX_1 >= 1.3f)
 		{
-			moveX_1 = 1.3f;
-			dirMoveX_1 = -1;
+			moveX_1 = 1.3f; dirMoveX_1 = -1;
 		}
 		else if (moveX_1 <= -0.7f)
 		{
-			moveX_1 = -0.7f;
-			dirMoveX_1 = +1;
+			moveX_1 = -0.7f; dirMoveX_1 = +1;
 		}
 		glutPostRedisplay();
 	}
@@ -432,13 +372,11 @@ void Timer(int value)
 		moveX_2 += dirMoveX_2 * 0.01f;
 		if (moveX_2 >= 0.7f)
 		{
-			moveX_2 = 0.7f;
-			dirMoveX_2 = -1;
+			moveX_2 = 0.7f; dirMoveX_2 = -1;
 		}
 		else if (moveX_2 <= -1.0f)
 		{
-			moveX_2 = -1.0f;
-			dirMoveX_2 = +1;
+			moveX_2 = -1.0f; dirMoveX_2 = +1;
 		}
 		glutPostRedisplay();
 	}
@@ -448,13 +386,11 @@ void Timer(int value)
 		moveY_1 += dirMoveY_1 * 0.01f;
 		if (moveY_1 >= 0.7f)
 		{
-			moveY_1 = 0.7f;
-			dirMoveY_1 = -1;
+			moveY_1 = 0.7f; dirMoveY_1 = -1;
 		}
 		else if (moveY_1 <= -0.7f)
 		{
-			moveY_1 = -0.7f;
-			dirMoveY_1 = +1;
+			moveY_1 = -0.7f; dirMoveY_1 = +1;
 		}
 		glutPostRedisplay();
 	}
@@ -463,13 +399,11 @@ void Timer(int value)
 		moveY_2 += dirMoveY_2 * 0.01f;
 		if (moveY_2 >= 0.7f)
 		{
-			moveY_2 = 0.7f;
-			dirMoveY_2 = -1;
+			moveY_2 = 0.7f; dirMoveY_2 = -1;
 		}
 		else if (moveY_2 <= -0.7f)
 		{
-			moveY_2 = -0.7f;
-			dirMoveY_2 = +1;
+			moveY_2 = -0.7f; dirMoveY_2 = +1;
 		}
 		glutPostRedisplay();
 	}
@@ -512,48 +446,33 @@ void Timer(int value)
 void Reset()
 {
 	 objectMode = -1;   // -1: left, 0: 둘 다, 1: right
-	 rotatingX = false;
-	 dirX = true; // +1: 시계, -1: 반시계
-	 angleX_1 = -30.0f;
-	 angleX_2 = -30.0f;
-	 rotatingY = false;
-	 dirY = true; // +1: 시계, -1: 반시계
-	 angleY_1 = 30.0f;
-	 angleY_2 = 30.0f;
+	 rotatingX = false; dirX = true;
+	 angleX_1 = -30.0f; angleX_2 = -30.0f;
+	 rotatingY = false; dirY = true; 
+	 angleY_1 = 30.0f; angleY_2 = 30.0f;
 
 	 rotatingCenter = false;  // 중앙 y축 기준 회전
-	 angleC_1 = 0.0f;
-	 angleC_2 = 0.0f;
-	 dirC = true; // +1: 시계, -1: 반시계
+	 angleC_1 = 0.0f; angleC_2 = 0.0f;
+	 dirC = true; 
 
-	 curScale_1 = 1.0f;
-	 curScale_2 = 1.0f;
-	 dirS_1 = +1;           // +1: 증가, -1: 감소
-	 dirS_2 = -1;           // +1: 증가, -1: 감소
+	 curScale_1 = 1.0f; curScale_2 = 1.0f;
+	 dirS_1 = +1; dirS_2 = -1;        
 	 scaling = false;
 	 scalingCenter = false;
 
-	 moveX_1 = 0.0f;
-	 moveX_2 = 0.0f;
-	 dirMoveX_1 = +1;
-	 dirMoveX_2 = -1;
+	 moveX_1 = 0.0f; moveX_2 = 0.0f;
+	 dirMoveX_1 = +1; dirMoveX_2 = -1;
 	 translatingX = false;
 
-	moveY_1 = 0.0f;
-	moveY_2 = 0.0f;
-	dirMoveY_1 = +1;
-	dirMoveY_2 = -1;
+	moveY_1 = 0.0f; moveY_2 = 0.0f;
+	dirMoveY_1 = +1; dirMoveY_2 = -1;
 	translatingY = false;
 
 	posChange = false;
-	cubeCenter = { -0.375f, 0.125f, -0.125f };
-	coneCenter = { 0.35f, 0.0f, 0.0f };
+	cubeCenter = { -0.375f, 0.125f, -0.125f }; coneCenter = { 0.35f, 0.0f, 0.0f };
+	cubeTarget = cubeCenter; coneTarget = coneCenter;
 
-	cubeTarget = cubeCenter;
-	coneTarget = coneCenter;
-
-	animationV1 = false;  
-	animationV2 = false;   
+	animationV1 = false; animationV2 = false;   
 
 	glutPostRedisplay();
 }
@@ -563,59 +482,31 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case '1':
-		objectMode = -1; // left
-		glutPostRedisplay();
-		break;
+		objectMode = -1; glutPostRedisplay(); break;
 	case '3':
-		objectMode = 0; // both
-		glutPostRedisplay();
-		break;
+		objectMode = 0; glutPostRedisplay(); break;
 	case '2':
-		objectMode = 1; // right
-		glutPostRedisplay();
-		break;
+		objectMode = 1; glutPostRedisplay(); break;
 	case 'x':
-		rotatingX = !rotatingX;
-		dirX = true;
-		rotatingY = false;
-		break;
+		rotatingX = !rotatingX; dirX = true; rotatingY = false; break;
 	case 'X':
-		rotatingX = !rotatingX;
-		dirX = false;
-		rotatingY = false;
-		break;
+		rotatingX = !rotatingX; dirX = false; rotatingY = false; break;
 	case 'y':
-		rotatingY = !rotatingY;
-		dirY = true;
-		rotatingX = false;
-		break;
+		rotatingY = !rotatingY; dirY = true; rotatingX = false; break;
 	case 'Y':
-		rotatingY = !rotatingY;
-		dirY = false;
-		rotatingX = false;
-		break;
+		rotatingY = !rotatingY; dirY = false; rotatingX = false; break;
 	case 'r':
-		rotatingCenter = !rotatingCenter;
-		dirC = true;
-		break;
+		rotatingCenter = !rotatingCenter; dirC = true; break;
 	case 'R':
-		rotatingCenter = !rotatingCenter;
-		dirC = false;
-		break;
+		rotatingCenter = !rotatingCenter; dirC = false; break;
 	case 'a':
-		scaling = !scaling;
-		scalingCenter = false;
-		break;
+		scaling = !scaling; scalingCenter = false; break;
 	case 'b':
-		scalingCenter = !scalingCenter;
-		scaling = false;
-		break;
+		scalingCenter = !scalingCenter; scaling = false; break;
 	case 'd':
-		translatingX = !translatingX;
-		break;
+		translatingX = !translatingX; break;
 	case 'e':
-		translatingY = !translatingY;
-		break;
+		translatingY = !translatingY; break;
 	case 't':
 		posChange = !posChange;
 		glm::vec3 temp = cubeTarget;
@@ -623,23 +514,13 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 		coneTarget = temp;
 		break;
 	case 'v':
-		animationV1 = !animationV1;
-		dirS_1 = +1;
-		dirS_2 = -1;
-		animationV2 = false;
+		animationV1 = !animationV1; dirS_1 = +1; dirS_2 = -1; animationV2 = false;
 		break;
 	case 'V':
-		animationV2 = !animationV2;
-		dirS_1 = -1;
-		dirS_2 = +1;
-		animationV1 = false;
+		animationV2 = !animationV2; dirS_1 = -1; dirS_2 = +1; animationV1 = false;
 		break;
-	case 's':
-		Reset();
-		break;
-	case 'q':
-		exit(0);
-		break;
+	case 's': Reset(); break;
+	case 'q': exit(0); break;
 	}
 }
 
@@ -787,13 +668,10 @@ GLvoid DrawCube(GLuint shaderProgramID)
 		model = glm::translate(model, -center); 
 	}
 	else
-		{
 		model = glm::scale(model, glm::vec3(curScale_1, curScale_1, curScale_1)); 
-	}
 	
-
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &model[0][0]);
-	// 각 면별로 그리기
+
 	for (int i = 0; i < 6; ++i)
 	{
 		glm::mat4 M = model;
@@ -804,6 +682,7 @@ GLvoid DrawCube(GLuint shaderProgramID)
 	}
 }
 
+// 원뿔 그리는 함수
 GLvoid DrawCone(GLuint shaderProgramID)
 {
 	if (!gQuadric) return; 
@@ -811,13 +690,11 @@ GLvoid DrawCone(GLuint shaderProgramID)
 	glm::mat4 M(1.0f);
 
 	if (rotatingCenter || animationV1)
-	{
 		M = glm::rotate(M, glm::radians(angleC_2), glm::vec3(0, 1, 0));
-	}
+	
 	if (scalingCenter && (objectMode == 0 || objectMode == 1))
-	{
 		M = glm::scale(M, glm::vec3(curScale_2, curScale_2, curScale_2)); 
-	}
+	
 
 	glm::mat4 viewRot = glm::rotate(glm::mat4(1.0f), glm::radians(30.0f), glm::vec3(0, 1, 0));
 	viewRot = glm::rotate(viewRot, glm::radians(-30.0f), glm::vec3(1, 0, 0));

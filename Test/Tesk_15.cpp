@@ -184,16 +184,6 @@ char* filetobuf(const char* file)
 	fclose(fptr);
 	buf[length] = 0;
 	return buf;
-	// Open file for reading 
-	// Return NULL on failure 
-	// Seek to the end of the file 
-	// Find out how many bytes into the file we are 
-	// Allocate a buffer for the entire length of the file and a null terminator 
-	// Go back to the beginning of the file 
-	// Read the contents of the file in to the buffer 
-	// Close the file 
-	// Null terminator 
-	// Return the buffer 
 }
 
 // 육면체 랜덤 면 2개 키기
@@ -226,57 +216,31 @@ GLvoid Keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case '1':
-		face[0] = true;
-		glutPostRedisplay();
-		break;
+		face[0] = true; glutPostRedisplay(); break;
 	case '2':
-		face[1] = true;
-		glutPostRedisplay();
-		break;
+		face[1] = true; glutPostRedisplay(); break;
 	case '3':
-		face[2] = true;
-		glutPostRedisplay();
-		break;
+		face[2] = true; glutPostRedisplay(); break;
 	case '4':
-		face[3] = true;
-		glutPostRedisplay();
-		break;
+		face[3] = true; glutPostRedisplay(); break;
 	case '5':
-		face[4] = true;
-		glutPostRedisplay();
-		break;
+		face[4] = true; glutPostRedisplay(); break;
 	case '6':
-		face[5] = true;
-		glutPostRedisplay();
-		break;
-
+		face[5] = true; glutPostRedisplay(); break;
 	case '7':
-		pFace[2] = true;
-		glutPostRedisplay();
-		break;
+		pFace[2] = true; glutPostRedisplay(); break;
 	case '8':
-		pFace[3] = true;
-		glutPostRedisplay();
-		break;
+		pFace[3] = true; glutPostRedisplay(); break;
 	case '9':
-		pFace[4] = true;
-		glutPostRedisplay();
-		break;
+		pFace[4] = true; glutPostRedisplay(); break;
 	case '0':
-		pFace[5] = true;
-		glutPostRedisplay();
-		break;
+		pFace[5] = true; glutPostRedisplay(); break;
 	case 'c':
-		RandomFace();
-		glutPostRedisplay();
-		break;
+		RandomFace(); glutPostRedisplay(); break;
 	case 't':
-		RandomPyramidFace();
-		glutPostRedisplay();
-		break;
+		RandomPyramidFace(); glutPostRedisplay(); break;
 	case 'q':
-		exit(0);
-		break;
+		exit(0); break;
 	case 'h':
 		cullMode = !cullMode;
 		if (cullMode) glEnable(GL_CULL_FACE);
@@ -306,8 +270,6 @@ void main(int argc, char** argv)
 	InitPyramid();   // 삼각뿔 초기화
 
 	glEnable(GL_DEPTH_TEST); // 깊이 테스트 활성화
-	// glEnable(GL_CULL_FACE); // 면 제거
-	//glDepthFunc(GL_ALWAYS);   // 항상 통과
 
 	glutKeyboardFunc(Keyboard);
 	glutDisplayFunc(drawScene);
